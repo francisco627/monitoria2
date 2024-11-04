@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            text-align: center;
+        }
+
+        h1, h2 {
+            color: #0056b3;
+            text-align: center;
+        }
+
+        .container {
+            width: 80%;
+            margin: 0 auto;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 6px 10px; /* Tamanho reduzido para compactar */
+            margin: 2px;
+            color: white;
+            background-color: #0056b3;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s; /* Adicionando transições */
+            font-size: 0.8em; /* Fonte menor para economizar espaço */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra suave */
+        }
+
+        .button:hover {
+            background-color: #003d7a;
+            transform: translateY(-2px); /* Levanta o botão ao passar o mouse */
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15); /* Sombra mais pronunciada */
+        }
+
+        .active {
+            background-color: #003d7a; /* Cor para o botão ativo */
+        }
+
+       
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px auto;
+        }
+
+        .table th, .table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+
+        .table th {
+            background-color: #0056b3;
+            color: white;
+        }
+
+        .actions {
+            margin: 20px 0;
+        }
+
+        /* Alinhamento das ações na linha */
+        .actions-cell {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .logo-container {
+            text-align: center;
+            margin-top: 20px; /* Espaçamento do logo */
+        }
+
+        .logo {
+            max-width: 300px; /* Aumente ou diminua conforme necessário */
+            height: auto;
+            margin-bottom: 20px; /* Espaçamento abaixo do logo */
+        }
+        .logo {
+    max-width: 80px; /* Ajuste o valor conforme necessário */
+    height: auto;
+    margin-bottom: 20px; /* Espaçamento abaixo do logo */
+}
+
+    </style>
+    <script>
+        function filtrarMonitorias(status) {
+            const rows = document.querySelectorAll(".monitoria-row");
+            const buttons = document.querySelectorAll(".filter-button");
+
+            // Remove a classe ativa de todos os botões
+            buttons.forEach(button => button.classList.remove("active"));
+
+            // Define a classe ativa para o botão clicado
+            const activeButton = document.querySelector(`.filter-button[data-status="${status}"]`);
+            if (activeButton) {
+                activeButton.classList.add("active");
+            }
+
+            // Filtra as linhas da tabela
+            rows.forEach(row => {
+                if (status === "todos" || row.getAttribute("data-status") === status) {
+                    row.style.display = ""; // Mostra a linha
+                } else {
+                    row.style.display = "none"; // Esconde a linha
+                }
+            });
+        }
+
+        function pesquisarMonitorias() {
+            const termo = document.getElementById("termo").value.toLowerCase();
+            const rows = document.querySelectorAll(".monitoria-row");
+
+            rows.forEach(row => {
+                const nomeAnalista = row.querySelector("td:nth-child(2)").textContent.toLowerCase();
+                if (nomeAnalista.includes(termo)) {
+                    row.style.display = ""; // Mostra a linha
+                } else {
+                    row.style.display = "none"; // Esconde a linha
+                }
+            });
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="logo-container">
+            <img src="{{ url_for('static', filename='static/img/logo.png') }}" alt="Logo Fivenet">
+        </div>
+        <h1>{{ saudacao }}, {{ nome_usuario }}!</h1>
+        <h2>Monitorias Pendentes</h2>
+
+        <div class="actions">
+            <button class="button filter-button active" data-status="todos" onclick="filtrarMonitorias('todos')">Todos</button>
+            <button class="button filter-button" data-status="pendente" onclick="filtrarMonitorias('pendente')">Pendentes</button>
+            <button class="button filter-button" data-status="aplicada" onclick="filtrarMonitorias('aplicada')">Aplicadas</button>
+            
+            {% if session['grupo'] == 'administrador' %}
+                <a href="{{ url_for('monitoria_form') }}" class="button">Nova Monitoria</a>
+                <a href="{{ url_for('registrar_usuario') }}" class="button">Criar Novo Usuário</a>
+                <a href="{{ url_for('relatorio') }}" class="button">Ver Relatório</a>
+                <input type="text" id="termo" placeholder="Pesquisar..." style="padding: 6px; width: 200px; height: 30px; border: 1px solid #ccc; border-radius: 5px;" oninput="pesquisarMonitorias()">
+            {% endif %}
+        </div>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nome do Analista</th>
+                    <th>Matrícula</th>
+                    <th>Nota</th>
+                    <th>Status</th>
+                    <th>Data da Monitoria</th>
+                    <th>Data e Hora da Assinatura</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for monitoria in monitorias %}
+                <tr class="monitoria-row" data-status="{{ monitoria.status|lower }}">
+                    <td>{{ monitoria.id }}</td>
+                    <td>{{ monitoria.nome_analista }}</td>
+                    <td>{{ monitoria.matricula }}</td>
+                    <td>{{ monitoria.nota }}</td>
+                    <td>{{ monitoria.status }}</td>
+                    <td>{{ monitoria.data_monitoria.strftime('%d/%m/%Y %H:%M') }}</td>
+                    <td>{{ monitoria.data_assinatura.strftime('%d/%m/%Y %H:%M') if monitoria.data_assinatura else 'Não assinada' }}</td> <!-- Exibindo a data da assinatura -->
+                    <td class="actions-cell">
+                        <a href="{{ url_for('visualizar_monitoria', id=monitoria.id) }}" class="button">Ver</a>
+                        <!-- Condicional para exibir botão "Assinar Feedback" para analistas -->
+                        {% if session['grupo'] == 'analista' and monitoria.status == 'pendente' %}
+                            <a href="{{ url_for('aplicar_feedback', index=monitoria.id) }}" class="button">Assinar Feedback</a>
+                        {% endif %}
+                        <!-- Condicional para exibir botão "Assinar Feedback" para administradores -->
+                        {% if session['grupo'] == 'administrador' and monitoria.status == 'pendente' %}
+                            <a href="{{ url_for('aplicar_feedback', index=monitoria.id) }}" class="button">Assinar Feedback</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

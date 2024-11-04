@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #fff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        thead {
+            background-color: #007BFF; /* Azul Fivenet */
+            color: white;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tbody tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        a {
+            color: #007BFF;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        td:last-child a {
+            display: inline-block;
+            background-color: #007BFF; /* Azul */
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease, transform 0.2s ease; /* Efeito de transição */
+        }
+
+        td:last-child a:hover {
+            background-color: #0056b3; /* Azul mais escuro ao passar o mouse */
+            transform: translateY(-3px); /* Move o botão para cima */
+        }
+
+        .button-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .button-container a {
+            display: inline-block;
+            background-color: #007BFF; /* Azul Fivenet */
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin: 0 10px;
+            text-decoration: none;
+            transition: background-color 0.3s ease, transform 0.2s ease; /* Efeito de transição */
+        }
+
+        .button-container a:hover {
+            background-color: #0056b3; /* Azul mais escuro ao passar o mouse */
+            transform: translateY(-3px); /* Move o botão para cima */
+        }
+
+        @media (max-width: 768px) {
+            table {
+                width: 100%;
+            }
+
+            th, td {
+                font-size: 14px;
+                padding: 10px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Lista de Monitorias</h1>
+
+    <div class="button-container">
+        <a href="{{ url_for('dashboard') }}">Voltar ao Dashboard</a>
+        <a href="{{ url_for('monitoria_form') }}">Nova Monitoria</a>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Nome do Analista</th>
+                <th>ID de Atendimento</th>
+                <th>Nota</th>
+                <th>Status</th>
+                <th>Penalidades</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for monitoria in monitorias %}
+            <tr>
+                <td>{{ monitoria.nome_analista }}</td>
+                <td>{{ monitoria.id_atendimento }}</td>
+                <td>{{ monitoria.nota }}</td>
+                <td>{{ monitoria.status }}</td>
+                <td>{{ monitoria.penalidades }}</td>
+                <td>
+                    {% if monitoria.status == 'pendente' %}
+                        <a href="{{ url_for('aplicar_feedback', index=monitoria.id) }}">Aplicar Feedback</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

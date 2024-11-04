@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback Aplicado com Sucesso</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f5f5f5;
+            font-family: Arial, sans-serif;
+        }
+
+        h1 {
+            color: #0056b3; /* Azul Fivenet */
+            text-align: center;
+            margin-top: 30px; /* Espaçamento superior */
+        }
+
+        .logo-container {
+            text-align: center;
+            margin-top: 20px; /* Espaçamento do logo */
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 30px; /* Espaçamento superior dos botões */
+        }
+
+        .btn {
+            margin: 10px; /* Espaçamento entre os botões */
+            padding: 10px 20px; /* Padding dos botões */
+            transition: background-color 0.3s, transform 0.2s; /* Transições suaves */
+        }
+
+        .btn:hover {
+            transform: scale(1.05); /* Efeito de aumentar no hover */
+        }
+
+        .btn-primary:hover {
+            background-color: #004494; /* Azul mais escuro para hover do botão primário */
+        }
+
+        .btn-secondary:hover {
+            background-color: #6c757d; /* Cor mais escura para hover do botão secundário */
+        }
+
+        .btn-info:hover {
+            background-color: #17a2b8; /* Cor mais escura para hover do botão de info */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo-container">
+            <img src="../static/static/img/logo.png" alt="Logo Fivenet Internet 5 Estrelas" style="max-width: 400px; height: auto; margin-bottom: 20px;"> <!-- Aumentando o tamanho do logo -->
+        </div>
+        <h1>Feedback Aplicado com Sucesso!</h1>
+        
+
+    <!-- Condição para mostrar os botões apenas para o grupo administrador -->
+    {% if grupo_usuario == 'administrador' %}
+    <div class="actions">
+        <a href="{{ url_for('monitoria_form') }}" class="button">Nova Monitoria</a>
+        <a href="{{ url_for('feedback_form') }}" class="button">Assinar Mais Feedback</a>
+    </div>
+    {% endif %}
+
+    <br>
+    <a href="{{ url_for('dashboard') }}" class="button">Voltar ao Dashboard</a>
+</body>
+</html>

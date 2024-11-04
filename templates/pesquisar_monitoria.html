@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pesquisar Monitoria</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            text-align: center;
+            margin: 0; /* Remove margens padrão */
+            padding: 20px; /* Espaçamento interno */
+        }
+
+        h1, h2 {
+            color: #0056b3;
+            text-align: center;
+        }
+
+        .container {
+            width: 80%;
+            margin: 0 auto; /* Centraliza a container */
+            background-color: white; /* Fundo branco para a container */
+            padding: 20px; /* Espaçamento interno da container */
+            border-radius: 8px; /* Cantos arredondados */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Sombra */
+        }
+
+        .button {
+            display: inline-block;
+            padding: 10px 15px; /* Tamanho dos botões */
+            margin: 5px;
+            color: white;
+            background-color: #0056b3;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            transition: background-color 0.3s, transform 0.2s; /* Efeitos de transição */
+            font-size: 1em; /* Tamanho da fonte */
+        }
+
+        .button:hover {
+            background-color: #003d7a; /* Cor de fundo ao passar o mouse */
+            transform: scale(1.05); /* Efeito de crescimento */
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse; /* Remove espaços entre as células */
+            margin: 20px 0; /* Espaçamento acima e abaixo da tabela */
+        }
+
+        .table th, .table td {
+            border: 1px solid #ddd; /* Borda das células */
+            padding: 12px; /* Espaçamento interno das células */
+            text-align: center; /* Centraliza o texto */
+        }
+
+        .table th {
+            background-color: #0056b3; /* Cor de fundo do cabeçalho */
+            color: white; /* Cor do texto no cabeçalho */
+        }
+
+        .logo-container {
+            text-align: center; /* Centraliza o logo */
+            margin-bottom: 20px; /* Espaçamento abaixo do logo */
+        }
+
+        .logo {
+            max-width: 300px; /* Ajuste conforme necessário */
+            height: auto; /* Mantém a proporção */
+        }
+
+        .footer {
+            margin-top: 20px; /* Espaçamento acima do rodapé */
+            color: #777; /* Cor do texto do rodapé */
+            font-size: 0.8em; /* Tamanho da fonte do rodapé */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo-container">
+            <img src="../static/static/img/logo.png" alt="Logo Fivenet Internet 5 Estrelas" class="logo"> <!-- Logo Fivenet -->
+        </div>
+        <h1>Pesquisar Monitoria</h1>
+
+        <div class="actions">
+            <a href="{{ url_for('dashboard') }}" class="button">Voltar ao Dashboard</a> <!-- Botão para voltar -->
+        </div>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nome do Analista</th>
+                    <th>Matrícula</th>
+                    <th>Nota</th>
+                    <th>Status</th>
+                    <th>Data da Monitoria</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for monitoria in monitorias %}
+                <tr>
+                    <td>{{ monitoria.id }}</td>
+                    <td>{{ monitoria.nome_analista }}</td>
+                    <td>{{ monitoria.matricula }}</td>
+                    <td>{{ monitoria.nota }}</td>
+                    <td>{{ monitoria.status }}</td>
+                    <td>{{ monitoria.data_monitoria.strftime('%d/%m/%Y %H:%M') }}</td>
+                    <td>
+                        <a href="{{ url_for('visualizar_monitoria', id=monitoria.id) }}" class="button">Ver</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="footer">
+            <p>&copy; 2024 Fivenet. Todos os direitos reservados.</p> <!-- Rodapé -->
+        </div>
+    </div>
+</body>
+</html>

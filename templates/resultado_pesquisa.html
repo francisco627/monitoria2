@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultados da Pesquisa</title>
+</head>
+<body>
+    <h1>Resultados da Pesquisa</h1>
+    <table>
+        <tr>
+            <th>Nome do Analista</th>
+            <th>ID do Atendimento</th>
+            <th>Status</th>
+            <th>Data</th>
+        </tr>
+        {% for monitoria in monitorias %}
+        <tr>
+            <td>{{ monitoria.nome_analista }}</td>
+            <td>{{ monitoria.atendimento_id }}</td>
+            <td>{{ monitoria.status }}</td>
+            <td>{{ monitoria.data_monitoria.strftime('%d/%m/%Y') }}</td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="4">Nenhuma monitoria encontrada.</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <a href="{{ url_for('pesquisar_monitorias') }}">Nova Pesquisa</a>
+    <a href="{{ url_for('dashboard') }}">Voltar ao Dashboard</a>
+</body>
+</html>

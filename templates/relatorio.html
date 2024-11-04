@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Relatório de Monitorias</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            color: #0056b3;
+            text-align: center;
+            margin: 20px 0;
+            font-size: 1.8em;
+        }
+
+        form {
+            width: 90%;
+            max-width: 1200px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 15px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: bold;
+            flex: 1 1 100%;
+            text-align: left;
+            max-width: 200px;
+            font-size: 0.9em;
+        }
+
+        select, input[type="date"] {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            flex: 1;
+            max-width: 200px;
+            font-size: 0.9em;
+        }
+
+        button {
+            padding: 8px 15px;
+            color: white;
+            background-color: #0056b3;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #003d7a;
+        }
+
+        .table-container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .table-container h2 {
+            background-color: #0056b3;
+            color: #fff;
+            padding: 10px;
+            font-size: 1.2em;
+            margin: 0;
+            text-align: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            font-size: 0.9em;
+        }
+
+        th {
+            background-color: #f0f2f5;
+            color: #333;
+            font-weight: bold;
+        }
+
+        tr:nth-child(even) {
+            background-color: #fafafa;
+        }
+
+        .back-button {
+            padding: 8px 15px;
+            color: white;
+            background-color: #0056b3;
+            border-radius: 5px;
+            text-decoration: none;
+            transition: background-color 0.3s;
+            font-size: 0.9em;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        .back-button:hover {
+            background-color: #003d7a;
+        }
+
+        /* Responsivo */
+        @media (max-width: 600px) {
+            form, .table-container {
+                width: 95%;
+            }
+            table, form {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Relatório de Monitorias</h1>
+    
+    <form method="POST">
+        <label for="analista">Selecionar Analista:</label>
+        <select name="analista" id="analista">
+            <option value="">Todos</option>
+            {% for analista in analistas %}
+                <option value="{{ analista.matricula }}">{{ analista.nome }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="data_inicio">Data Início:</label>
+        <input type="date" name="data_inicio" id="data_inicio">
+
+        <label for="data_fim">Data Fim:</label>
+        <input type="date" name="data_fim" id="data_fim">
+
+        <button type="submit">Filtrar</button>
+    </form>
+
+    <div class="table-container">
+        <h2>Nota Média e Quantidade de Monitorias por Analista</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Analista</th>
+                    <th>Nota Média</th>
+                    <th>Quantidade de Monitorias</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for analista, dados in nota_media_por_analista.items() %}
+                    <tr>
+                        <td>{{ analista }}</td>
+                        <td>{{ dados.media | round(2) }}</td>
+                        <td>{{ dados.quantidade }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="table-container">
+        <h2>Média de Notas por Analista</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Analista</th>
+                    <th>Item</th>
+                    <th>Pontuação Média</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for analista, items in media_pontuacao_por_analista.items() %}
+                    {% for item, media in items.items() %}
+                        <tr>
+                            <td>{{ analista }}</td>
+                            <td>{{ item }}</td>
+                            <td>{{ media }}</td>
+                        </tr>
+                    {% endfor %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <a href="{{ url_for('dashboard') }}" class="back-button">Voltar ao Dashboard</a>
+</body>
+</html>

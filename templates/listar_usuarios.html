@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listar Usuários</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Adicione seu CSS aqui */
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Listar Usuários</h1>
+
+        <!-- Formulário de Filtro de Analista -->
+        <div class="filter-form">
+            <form method="get" action="{{ url_for('listar_usuarios') }}">
+                <label for="analista">Filtrar por Analista:</label>
+                <select id="analista" name="analista">
+                    <option value="">Todos</option>
+                    {% for analista in lista_analistas %}
+                        <option value="{{ analista.nome }}">{{ analista.nome }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="button">Filtrar</button>
+            </form>
+        </div>
+
+        <h2>Monitorias</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nome do Analista</th>
+                    <th>Nota</th>
+                    <th>Status</th>
+                    <!-- Adicione mais cabeçalhos conforme necessário -->
+                </tr>
+            </thead>
+            <tbody>
+                {% for monitoria in monitorias %}
+                <tr>
+                    <td>{{ monitoria.id }}</td>
+                    <td>{{ monitoria.analista }}</td>
+                    <td>{{ monitoria.nota }}</td>
+                    <td>{{ monitoria.status }}</td>
+                    <!-- Adicione mais dados conforme necessário -->
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

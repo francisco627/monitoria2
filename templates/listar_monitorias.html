@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pesquisar Monitorias</title>
+    <style>
+        /* Adicione seu estilo aqui */
+    </style>
+</head>
+<body>
+    <h1>Pesquisar Monitorias</h1>
+    
+    <!-- Formulário de pesquisa -->
+    <form action="{{ url_for('pesquisar_monitoria') }}" method="POST">
+        <input type="text" name="termo" placeholder="Nome do Analista ou Descritivo">
+        <button type="submit">Pesquisar</button>
+    </form>
+
+    <!-- Tabela para listar monitorias -->
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nome do Analista</th>
+                <th>Matrícula</th>
+                <th>Nota</th>
+                <th>Status</th>
+                <th>Data da Monitoria</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for monitoria in monitorias %}
+            <tr>
+                <td>{{ monitoria.id }}</td>
+                <td>{{ monitoria.nome_analista }}</td>
+                <td>{{ monitoria.matricula }}</td>
+                <td>{{ monitoria.nota }}</td>
+                <td>{{ monitoria.status }}</td>
+                <td>{{ monitoria.data_monitoria.strftime('%d/%m/%Y %H:%M') }}</td>
+                <td>
+                    <a href="{{ url_for('visualizar_monitoria', id=monitoria.id) }}" class="button">Ver</a>
+                    {% if session['grupo'] == 'administrador' and monitoria.status == 'pendente' %}
+                        <a href="{{ url_for('aplicar_feedback', index=monitoria.id) }}">Assinar Feedback</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

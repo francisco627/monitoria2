@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplicar Feedback</title>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <ul>
+        {% for category, message in messages %}
+            <li class="{{ category }}">{{ message }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+{% endwith %}
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #007bff; /* Azul Fivenet */
+            margin-bottom: 20px;
+        }
+
+        p {
+            color: #555;
+            font-size: 18px;
+            margin-bottom: 30px;
+        }
+
+        form {
+            display: inline-block;
+            margin-top: 20px;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 100%;
+            max-width: 300px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 12px 20px;
+            background-color: #007bff; /* Azul Fivenet */
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            margin: 5px;
+        }
+
+        button:hover {
+            background-color: #0056b3; /* Azul mais escuro ao passar o mouse */
+            transform: scale(1.05);
+        }
+
+        a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .monitoria-details {
+            text-align: left;
+            display: inline-block;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .monitoria-details p {
+            margin: 5px 0;
+            font-size: 16px;
+        }
+
+        .monitoria-details strong {
+            color: #333;
+        }
+
+        .action-buttons {
+            margin-top: 20px;
+        }
+
+        .action-buttons button {
+            background-color: #28a745; /* Verde para os botões de ação */
+        }
+
+        .action-buttons button:hover {
+            background-color: #218838; /* Verde mais escuro ao passar o mouse */
+        }
+
+        /* Estilo para o logo */
+        .logo-container {
+            text-align: center; /* Centraliza o logo */
+            margin-bottom: 20px; /* Espaçamento abaixo do logo */
+        }
+
+        .logo-container img {
+            max-width: 250px; /* Aumenta a largura máxima do logo */
+            height: auto; /* Mantém a proporção da imagem */
+        }
+
+        /* Estilo para a mensagem de erro */
+        .error-message {
+            color: red;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Contêiner para o logo -->
+    <div class="logo-container">
+        <img src="{{ url_for('static', filename='static/img/logo.png') }}" alt="Logo Fivenet">
+    </div>
+
+    <h1>Aplicar Feedback para Monitoria: {{ monitoria.nome_analista }}</h1>
+
+    <!-- Mensagem de erro se houver -->
+    {% if error_message %}
+        <p class="error-message">{{ error_message }}</p>
+    {% endif %}
+
+    <!-- Detalhes da monitoria -->
+    <div class="monitoria-details">
+        <p><strong>Matrícula:</strong> {{ monitoria.matricula }}</p>
+        <p><strong>ID do Atendimento:</strong> {{ monitoria.atendimento_id }}</p>
+        <p><strong>Nota:</strong> {{ monitoria.nota }}</p>
+        <p><strong>Status:</strong> {{ monitoria.status }}</p>
+        <p><strong>Data:</strong> {{ monitoria.data_monitoria.strftime('%d/%m/%Y') }}</p>
+        <p><strong>Descritivo:</strong> {{ monitoria.descritivo }}</p>
+        <p><strong>Penalidades:</strong> {{ monitoria.penalidades }}</p>
+
+        {% if monitoria.arquivo_pdf %}
+            <p><strong>Arquivo PDF:</strong> <a href="{{ url_for('download_file', filename=monitoria.arquivo_pdf) }}" target="_blank">Baixar PDF</a></p>
+        {% else %}
+            <p><strong>Arquivo PDF:</strong> Nenhum arquivo PDF incluído</p>
+        {% endif %}
+
+        <!-- Exibe a gravação se existir -->
+        {% if monitoria.gravacao %}
+            <p><strong>Gravação:</strong> 
+                <a href="{{ url_for('download_file', filename=monitoria.gravacao) }}" target="_blank">Baixar Gravação</a>
+            </p>
+        {% else %}
+            <p><strong>Gravação:</strong> Nenhuma gravação incluída</p>
+        {% endif %}
+    </div>
+
+    <!-- Formulário de feedback -->
+    <form method="POST">
+        <label for="assinatura">Assinatura:</label>
+        <input type="text" id="assinatura" name="assinatura" required>
+        <button type="submit">Aplicar Feedback</button>
+    </form>
+
+        <!-- Botões de ação apenas para administradores -->
+    {% if grupo_usuario == 'administrador' %}
+    <div class="action-buttons">
+        <button id="aplicarFeedback">Assinar Mais Feedback</button>
+        <button id="novaMonitoria">Nova Monitoria</button>
+    </div>
+    {% endif %}
+
+    <br>
+    <a href="{{ url_for('dashboard') }}">Voltar ao Dashboard</a>
+
+    <!-- Script para redirecionar com base na opção escolhida -->
+    <script>
+        document.getElementById('aplicarFeedback').addEventListener('click', function() {
+            window.location.href = "{{ url_for('feedback_form') }}"; // Redireciona para o formulário de feedback
+        });
+
+        document.getElementById('novaMonitoria').addEventListener('click', function() {
+            window.location.href = "{{ url_for('monitoria_form') }}"; // Redireciona para o formulário de nova monitoria
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página Inicial - Fivenet</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-image: url('{{ url_for("static", filename="static/img/tela_fundo.png") }}');
+            background-size: cover; /* Faz a imagem cobrir toda a tela */
+            background-position: center; /* Centraliza a imagem */
+            background-repeat: no-repeat; /* Evita que a imagem se repita */
+            background-attachment: fixed; /* A imagem de fundo fica fixa ao rolar */
+        }
+
+        .container {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            justify-content: flex-end; /* Alinha à direita */
+            align-items: center; /* Centraliza verticalmente */
+            padding-right: 140px; /* Ajusta a margem da direita */
+            padding-left: 0px; /* Adiciona um espaço à esquerda */
+            transform: translateX(-250px); /* Move a caixa 20cm para a esquerda (200px) */
+        }
+
+        form {
+            background-color: #ffffff; /* Fundo branco sólido (sem transparência) */
+            padding: 40px; /* Padding reduzido para compactar */
+            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.3); /* Sombra mais forte para destaque */
+            width: 320px; /* Largura da caixa de login */
+            height: 398px; /* Altura aumentada para 10cm a mais */
+            text-align: center;
+            border-radius: 6px; /* Bordas mais arredondadas */
+            transition: transform 0.3s ease, box-shadow 0.3s ease; /* Transição suave */
+        }
+
+        form:hover {
+            transform: translateY(-5px); /* Levanta a caixa de login ao passar o mouse */
+            box-shadow: 0px 8px 30px rgba(0, 0, 0, 0.4); /* Aumenta a sombra ao passar o mouse */
+        }
+
+        .form-header {
+            margin-bottom: 20px;
+        }
+
+        .form-header img {
+            max-width: 100%; /* Faz a imagem se ajustar ao tamanho da caixa */
+            height: auto; /* Mantém a proporção da imagem */
+            margin-bottom: 10px; /* Espaço abaixo da imagem */
+        }
+
+        .form-header h2 {
+            color: #003366; /* Cor do texto do cabeçalho */
+            font-size: 24px;
+            margin-top: 10px;
+        }
+
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            font-size: 14px;
+            color: #333;
+            text-align: left; /* Alinha o texto à esquerda */
+        }
+
+        input.form-control {
+            width: 80%; /* Largura total para os campos de entrada */
+            padding: 20px; /* Aumenta o padding para maior conforto */
+            margin: 10px 0; /* Margem uniforme para espaçamento */
+            border: 1px solid #ccc; /* Borda padrão */
+            font-size: 14px; /* Tamanho da fonte consistente */
+            border-radius: 5px; /* Bordas arredondadas */
+            transition: border-color 0.3s ease, box-shadow 0.3s ease; /* Transição suave */
+        }
+
+        input.form-control:focus {
+            border-color: #003366; /* Cor azul ao focar no campo */
+            outline: none; /* Remove a borda de foco padrão */
+            box-shadow: 0px 0px 5px rgba(0, 51, 102, 0.5); /* Sombra ao focar */
+        }
+
+        button {
+            width: 50%; /* Botão ocupa a largura total */
+            padding: 10px; /* Padding consistente para o botão */
+            background-color: #003366; /* Botão azul escuro */
+            color: white; /* Cor do texto */
+            border: none; /* Remove borda padrão */
+            cursor: pointer; /* Cursor de ponteiro ao passar o mouse */
+            font-size: 20px; /* Tamanho da fonte do botão */
+            margin: 20px 0; /* Margem uniforme para espaçamento */
+            border-radius: 5px; /* Bordas arredondadas */
+            transition: background-color 0.3s ease, transform 0.3s ease; /* Transições suaves */
+        }
+
+        button:hover {
+            background-color: #002244; /* Efeito hover em um azul mais escuro */
+            transform: scale(1.05); /* Leve aumento ao passar o mouse */
+        }
+
+        .error-message {
+            color: red; /* Cor para mensagem de erro */
+            font-size: 12px; /* Tamanho da fonte */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <form action="{{ url_for('login') }}" method="POST">
+            <div class="form-header">
+                <img src="{{ url_for('static', filename='static/img/logo.png') }}" alt="Logo Fivenet"> <!-- Logo adicionado -->
+                <h2>Monitoria de Qualidade</h2> <!-- Título alterado para Monitoria de Qualidade -->
+            </div>
+
+            <!-- Mensagem de erro, se houver -->
+            {% if erro %}
+                <p class="error-message">{{ erro }}</p>
+            {% endif %}
+
+            <!-- Campo de E-mail -->
+            <label for="email">E-mail:</label>
+            <input type="email" name="email" class="form-control" required placeholder="Digite seu e-mail">
+
+            <!-- Campo de Senha -->
+            <label for="password">Senha:</label>
+            <input type="password" name="password" class="form-control" required placeholder="Digite sua senha">
+
+            <!-- Botão de Login -->
+            <button type="submit">Entrar</button>
+        </form>
+    </div>
+</body>
+</html>
