@@ -6,12 +6,16 @@ from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 import os
+from waitress import serve  # Importação do waitress
+
 
 app = Flask(__name__)
 app.secret_key = 'chave-secreta-para-sessao'
 
-# Configuração do banco de dados SQLite
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///monitorias.db'
+# Obtendo a URI do banco de dados da variável de ambiente
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///monitorias.db')
+
+# Evitando que o Flask rastreie modificações no banco de dados (desempenho)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -445,5 +449,6 @@ def registrar_usuario():
 def download_file(filename):
     return send_from_directory(UPLOAD_FOLDER, filename, as_attachment=True)
 
-if __name__ == '__main__':
-    app.run(debug=True)
+
+if __name__ == "__main__":
+    serve(app, host='0.0.0.0', port=8080)  # Usando waitress para rodar o Flask
