@@ -208,28 +208,32 @@ def feedback_form():
 
 @app.route('/aplicar_feedback/<int:index>', methods=['GET', 'POST'])
 def aplicar_feedback(index):
-    monitoria = Monitoria.query.get_or_404(index)  # Obtém a monitoria pelo ID
+    # Obtém a monitoria do banco de dados
+    monitoria = Monitoria.query.get_or_404(index)
     
     if request.method == 'POST':
-        assinatura = request.form.get('assinatura')  # Obtém a assinatura do formulário
-        print(f"Assinatura fornecida: '{assinatura}', Matrícula monitorada: '{monitoria.matricula}'")  # Debug
-        print(f"Status atual da monitoria: '{monitoria.status}'")  # Debug
+        # Obtém a assinatura (matrícula) do analista monitorado
+        assinatura = request.form.get('assinatura')
         
-        # Valida a assinatura
+        # Valida a assinatura, deve ser igual à matrícula do analista monitorado
         if assinatura != monitoria.matricula:
             flash('A assinatura deve ser a matrícula do analista monitorado.', 'error')
+            # Se a assinatura for inválida, renderiza novamente a página de feedback
             return render_template('aplicar_feedback.html', monitoria=monitoria, arquivo_pdf=monitoria.arquivo_pdf, gravacao=monitoria.gravacao)
         
-        # Registra a assinatura e atualiza a monitoria
+        # Se a assinatura for válida, registra a assinatura e altera o status da monitoria
         monitoria.assinatura = assinatura
         monitoria.data_assinatura = datetime.now()  # Armazena a data/hora da assinatura
-        monitoria.status = 'aplicada'  # Atualiza o status da monitoria
-        db.session.commit()  # Salva as mudanças no banco de dados
+        monitoria.status = 'aplicada'  # Atualiza o status para 'aplicada'
+        
+        # Comita as mudanças no banco de dados
+        db.session.commit()
         
         flash('Feedback aplicado com sucesso!', 'success')
-        return redirect(url_for('feedback_sucesso'))  # Redireciona para a página de sucesso
-
+        return redirect(url_for('feedback_sucesso'))  # Redireciona para página de sucesso após aplicar o feedback
+    
     return render_template('aplicar_feedback.html', monitoria=monitoria, arquivo_pdf=monitoria.arquivo_pdf, gravacao=monitoria.gravacao)
+
 
 
 
