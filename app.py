@@ -12,12 +12,9 @@ from waitress import serve  # Importação do waitress
 app = Flask(__name__)
 app.secret_key = 'chave-secreta-para-sessao'
 
-# Obtendo a URI do banco de dados da variável de ambiente
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://monitoria_db_user:qvof4jF81loI45WsH3DQpccbx1jb7GX8@dpg-cslrrfa3esus73ca72jg-a/monitoria_db'
-
-
-# Evitando que o Flask rastreie modificações no banco de dados (desempenho)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
