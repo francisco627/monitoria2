@@ -12,7 +12,7 @@ from waitress import serve  # Importação do waitress
 app = Flask(__name__)
 app.secret_key = 'chave-secreta-para-sessao'
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://monitoria_db_user:qvof4jF81loI45WsH3DQpccbx1jb7GX8@dpg-cslrrfa3esus73ca72jg-a/monitoria_db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 
