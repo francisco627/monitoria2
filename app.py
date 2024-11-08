@@ -10,12 +10,11 @@ from waitress import serve  # Importação do waitress
 
 
 app = Flask(__name__)
-app.secret_key = 'chave-secreta-para-sessao'
-
-import os
-
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')  # Caso esteja usando variável de ambiente
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://monitoria_db_user:qvof4jF81loI45WsH3DQpccbx1jb7GX8@dpg-cslrrfa3esus73ca72jg-a.oregon-postgres.render.com/monitoria_db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db = SQLAlchemy(app)
+migrate = Migrate(app, db)  # Inicialize o Flask-Migrate com a aplicação e o banco de dados
 
 
 db = SQLAlchemy(app)
