@@ -12,7 +12,9 @@ from waitress import serve  # Importação do waitress
 app = Flask(__name__)
 app.secret_key = 'chave-secreta-para-sessao'
 
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
+import os
+
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')  # Caso esteja usando variável de ambiente
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 
