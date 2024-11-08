@@ -17,10 +17,6 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)  # Inicialize o Flask-Migrate com a aplicação e o banco de dados
 
 
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
-
-
 # Modelo de usuário para o banco de dados
 class Usuario(db.Model):
     id = db.Column(db.Integer, primary_key=True)
