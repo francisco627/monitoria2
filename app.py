@@ -49,10 +49,15 @@ class Monitoria(db.Model):
     assinatura = db.Column(db.String(100))  # Adiciona a coluna assinatura
     data_assinatura = db.Column(db.DateTime)  # Adiciona a coluna para data da assinatura
 
-UPLOAD_FOLDER = os.path.join(app.root_path, 'static', 'upload')
-app.config['UPLOAD_FOLDER'] = os.path.join(os.getcwd(), 'static', 'upload')
 
+# Verifica se a pasta de uploads existe
+UPLOAD_FOLDER = 'upload'
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
+# Rota para servir os arquivos
+@app.route('/uploads/<filename>')
+def download_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 # Rota inicial
 @app.route('/')
@@ -214,32 +219,28 @@ def feedback_form():
 
 @app.route('/aplicar_feedback/<int:index>', methods=['GET', 'POST'])
 def aplicar_feedback(index):
-    # Obtém a monitoria do banco de dados
-    monitoria = Monitoria.query.get_or_404(index)
+    monitoria = Monitoria.query.get_or_404(index)  # Obtém a monitoria pelo ID
     
     if request.method == 'POST':
-        # Obtém a assinatura (matrícula) do analista monitorado
-        assinatura = request.form.get('assinatura')
+        assinatura = request.form.get('assinatura')  # Obtém a assinatura do formulário
+        print(f"Assinatura fornecida: '{assinatura}', Matrícula monitorada: '{monitoria.matricula}'")  # Debug
+        print(f"Status atual da monitoria: '{monitoria.status}'")  # Debug
         
-        # Valida a assinatura, deve ser igual à matrícula do analista monitorado
+        # Valida a assinatura
         if assinatura != monitoria.matricula:
             flash('A assinatura deve ser a matrícula do analista monitorado.', 'error')
-            # Se a assinatura for inválida, renderiza novamente a página de feedback
             return render_template('aplicar_feedback.html', monitoria=monitoria, arquivo_pdf=monitoria.arquivo_pdf, gravacao=monitoria.gravacao)
         
-        # Se a assinatura for válida, registra a assinatura e altera o status da monitoria
+        # Registra a assinatura e atualiza a monitoria
         monitoria.assinatura = assinatura
         monitoria.data_assinatura = datetime.now()  # Armazena a data/hora da assinatura
-        monitoria.status = 'aplicada'  # Atualiza o status para 'aplicada'
-        
-        # Comita as mudanças no banco de dados
-        db.session.commit()
+        monitoria.status = 'aplicada'  # Atualiza o status da monitoria
+        db.session.commit()  # Salva as mudanças no banco de dados
         
         flash('Feedback aplicado com sucesso!', 'success')
-        return redirect(url_for('feedback_sucesso'))  # Redireciona para página de sucesso após aplicar o feedback
-    
-    return render_template('aplicar_feedback.html', monitoria=monitoria, arquivo_pdf=monitoria.arquivo_pdf, gravacao=monitoria.gravacao)
+        return redirect(url_for('feedback_sucesso'))  # Redireciona para a página de sucesso
 
+    return render_template('aplicar_feedback.html', monitoria=monitoria, arquivo_pdf=monitoria.arquivo_pdf, gravacao=monitoria.gravacao)
 
 
 
@@ -447,17 +448,10 @@ def registrar_usuario():
     return render_template('registrar_usuario.html', usuarios=usuarios)
 
 # Rota para download de arquivo
-@app.route('/download/<filename>')
+
+app.route('/download/<path:filename>')
 def download_file(filename):
-    try:
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        
-        if os.path.exists(file_path):
-            return send_file(file_path, as_attachment=True)
-        else:
-            return render_template('pagina_atual.html', error="Arquivo não encontrado")
-    except Exception as e:
-        return render_template('pagina_atual.html', error="Erro ao tentar baixar o arquivo: " + str(e))
+    return send_from_directory(UPLOAD_FOLDER, filename, as_attachment=True)
 
 
 if __name__ == "__main__":
