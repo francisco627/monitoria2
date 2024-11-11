@@ -47,7 +47,7 @@ class Monitoria(db.Model):
     data_assinatura = db.Column(db.DateTime)  # Adiciona a coluna para data da assinatura
 
 # Verifica se a pasta de uploads existe
-UPLOAD_FOLDER = 'upload'
+UPLOAD_FOLDER = os.path.join(os.getcwd(), 'upload')  # Caminho absoluto para o diretório de upload
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # Rota inicial

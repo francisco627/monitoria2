@@ -34,10 +34,10 @@
         }
 
         .logo {
-            max-width: 260px; /* Define o tamanho máximo da largura da imagem */
-            height: auto; /* Mantém a proporção da imagem */
-            display: block; /* Garante que a imagem fique centralizada */
-            margin: 0 auto 20px; /* Centraliza a imagem e adiciona espaçamento abaixo */
+            max-width: 260px;
+            height: auto;
+            display: block;
+            margin: 0 auto 20px;
         }
 
         h2 {
@@ -70,7 +70,7 @@
             border-radius: 5px;
             transition: background-color 0.3s, transform 0.3s;
             font-size: 16px;
-            margin-top: 20px; /* Espaçamento acima do botão */
+            margin-top: 20px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
 
@@ -86,16 +86,14 @@
             color: #888;
         }
 
-        /* Adicionando estilo para as informações da monitoria */
         .info-card {
-            background-color: #e8f0fe; /* Fundo suave */
+            background-color: #e8f0fe;
             padding: 15px;
             border-radius: 8px;
             margin-bottom: 15px;
-            border-left: 5px solid #003366; /* Barra lateral */
+            border-left: 5px solid #003366;
         }
 
-        /* Estilos responsivos */
         @media (max-width: 500px) {
             .container {
                 padding: 10px;
@@ -117,7 +115,7 @@
         <h1>Detalhes da Monitoria</h1>
     </header>
     <main class="container">
-        <img src="../static/static/img/logo.png" alt="Logo Fivenet Internet 5 Estrelas" class="logo"> <!-- Logo Fivenet -->
+        <img src="../static/static/img/logo.png" alt="Logo Fivenet Internet 5 Estrelas" class="logo">
         <h2>Monitoria: {{ monitoria.nome_analista }}</h2>
         
         <div class="info-card">
@@ -131,10 +129,42 @@
             <p><span class="strong">Penalidades:</span> {{ monitoria.penalidades }}</p>
         </div>
 
+        <!-- Link para o download do arquivo -->
+        <a href="#" class="button" id="download-link" data-filename="{{ monitoria.arquivo_pdf }}">Baixar PDF</a>
+        
         <a href="{{ url_for('dashboard') }}" class="button">Voltar ao Dashboard</a>
     </main>
     <footer>
         &copy; 2024 Fivenet - Todos os direitos reservados.
     </footer>
+
+    <!-- Script JavaScript para o download -->
+    <script>
+        document.getElementById('download-link').addEventListener('click', function(event) {
+            event.preventDefault();  // Previne o comportamento padrão (redirecionamento)
+            const filename = this.getAttribute('data-filename');
+            const url = '{{ url_for("download_file", filename="") }}' + filename;
+
+            // Faz a requisição para o arquivo
+            fetch(url, { method: 'GET', headers: { 'Content-Type': 'application/octet-stream' } })
+                .then(response => {
+                    if (response.ok) {
+                        return response.blob();  // Converte a resposta para um blob
+                    }
+                    throw new Error('Erro ao baixar o arquivo');
+                })
+                .then(blob => {
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);  // Remove o link temporário após o download
+                })
+                .catch(error => {
+                    alert('Falha ao tentar baixar o arquivo: ' + error.message);
+                });
+        });
+    </script>
 </body>
 </html>
