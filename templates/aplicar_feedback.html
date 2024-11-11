@@ -4,13 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aplicar Feedback</title>
-        <ul>
-        {% for category, message in messages %}
-            <li class="{{ category }}">{{ message }}</li>
-        {% endfor %}
-        </ul>
-    {% endif %}
-{% endwith %}
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -167,7 +160,7 @@
         <button type="submit">Aplicar Feedback</button>
     </form>
 
-        <!-- Botões de ação apenas para administradores -->
+    <!-- Botões de ação apenas para administradores -->
     {% if grupo_usuario == 'administrador' %}
     <div class="action-buttons">
         <button id="aplicarFeedback">Assinar Mais Feedback</button>
