@@ -478,12 +478,14 @@ def registrar_usuario():
 
 # Rota para download de arquivo
 
-@app.route('/download/<filename>', endpoint='download_file')
+@app.route('/download/<filename>')
 def download_file(filename):
-    try:
-        return send_from_directory(app.config['UPLOAD_FOLDER'], filename, as_attachment=True)
-    except FileNotFoundError:
-        abort(404)
+    return f"Downloading {filename}"
+
+@app.route('/another_download/<filename>')
+def another_download_file(filename):  # Função renomeada
+    return f"Another download {filename}"
+
 
 
 
