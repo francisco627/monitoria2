@@ -85,7 +85,7 @@ def login():
     password = request.form['password']
     usuario = Usuario.query.filter_by(email=email).first()
 
-    if usuario and check_password_hash(usuario.senha, password):
+    if usuario and usuario.senha == password:  # Compara a senha diretamente
         session['usuario'] = usuario.nome
         session['usuario_id'] = usuario.id
         session['grupo'] = usuario.grupo
