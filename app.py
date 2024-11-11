@@ -46,8 +46,9 @@ class Monitoria(db.Model):
     assinatura = db.Column(db.String(100))  # Adiciona a coluna assinatura
     data_assinatura = db.Column(db.DateTime)  # Adiciona a coluna para data da assinatura
 
-# Verifica se a pasta de uploads existe
-UPLOAD_FOLDER = os.path.join(os.getcwd(), 'upload')  # Caminho absoluto para o diretório de upload
+ #Define o diretório de upload
+UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static', 'upload')
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # Rota inicial
@@ -442,7 +443,6 @@ def registrar_usuario():
     usuarios = Usuario.query.all()  # Busca todos os usuários cadastrados
     return render_template('registrar_usuario.html', usuarios=usuarios)
 
-
 @app.route('/download_file/<filename>')
 def download_file(filename):
     try:
@@ -457,7 +457,8 @@ def download_file(filename):
             return redirect(url_for('dashboard'))  # Redireciona para o dashboard caso o arquivo não exista
     except Exception as e:
         flash(f"Ocorreu um erro ao tentar fazer o download: {e}", "error")
-        return redirect(url_for('dashboard'))
+        return redirect(url_for('dashboard'))  # Redireciona em caso de erro
+
 
 
 if __name__ == "__main__":
