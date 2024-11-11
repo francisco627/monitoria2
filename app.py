@@ -27,33 +27,6 @@ migrate = Migrate(app, db)  # Inicialize o Flask-Migrate com a aplicação e o b
 UPLOAD_FOLDER = 'C:/Users/User/Desktop/Quality Monitory/static/upload'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-# Função para salvar o arquivo
-def salvar_arquivo(arquivo, pasta_destino):
-    if arquivo:
-        caminho_arquivo = os.path.join(pasta_destino, arquivo.filename)
-        arquivo.save(caminho_arquivo)
-        return caminho_arquivo
-    return None
-
-
-@app.route('/upload_monitoria', methods=['POST'])
-def upload_monitoria():
-    if request.method == 'POST':
-        # Recuperando arquivos do formulário
-        arquivo_pdf = request.files.get('arquivo_pdf')
-        gravacao = request.files.get('gravacao')
-
-        # Salvando os arquivos e obtendo os caminhos
-        if arquivo_pdf and gravacao:
-            arquivo_pdf_path = salvar_arquivo(arquivo_pdf, UPLOAD_FOLDER)
-            gravacao_path = salvar_arquivo(gravacao, UPLOAD_FOLDER)
-
-            # Agora você pode salvar esses caminhos no banco de dados ou realizar outras ações
-            # Exemplo de redirecionamento após o upload
-            return redirect(url_for('pagina_sucesso', pdf_path=arquivo_pdf_path, gravacao_path=gravacao_path))
-
-    return 'Erro ao fazer upload dos arquivos', 400
-
 # Modelo de usuário para o banco de dados
 class Usuario(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -477,18 +450,15 @@ def registrar_usuario():
     return render_template('registrar_usuario.html', usuarios=usuarios)
 
 # Rota para download de arquivo
+
 @app.route('/download/<filename>')
 def download_file(filename):
-    return f"Downloading {filename}"
-
-@app.route('/another_download/<filename>')
-def another_download_file(filename):  # Renomeado para evitar conflito
-    return f"Another download {filename}"
-
-
-
-
-
+    try:
+        # Tenta enviar o arquivo solicitado da pasta de upload
+        return send_from_directory(app.config['UPLOAD_FOLDER'], filename, as_attachment=True)
+    except FileNotFoundError:
+        # Caso o arquivo não exista
+        abort(404)
 
 if __name__ == "__main__":
     serve(app, host='0.0.0.0', port=8080)  # Usando waitress para rodar o Flask
