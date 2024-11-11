@@ -9,6 +9,7 @@ from flask import Flask, send_from_directory, url_for
 from flask import Flask, send_from_directory, render_template
 import os
 from flask import send_from_directory, abort, flash, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, send_file
 from waitress import serve  # Importação do waitress
 
 
@@ -49,7 +50,8 @@ class Monitoria(db.Model):
     data_assinatura = db.Column(db.DateTime)  # Adiciona a coluna para data da assinatura
 
 UPLOAD_FOLDER = os.path.join(app.root_path, 'static', 'upload')
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['UPLOAD_FOLDER'] = os.path.join(os.getcwd(), 'static', 'upload')
+
 
 
 # Rota inicial
@@ -444,11 +446,22 @@ def registrar_usuario():
     usuarios = Usuario.query.all()  # Busca todos os usuários cadastrados
     return render_template('registrar_usuario.html', usuarios=usuarios)
 
-# Rota para baixar arquivos da monitoria
+# Rota para download de arquivo
 @app.route('/download/<filename>')
 def download_file(filename):
-    upload_folder = os.path.join(app.root_path, 'static', 'upload')
-    return send_from_directory(upload_folder, filename, as_attachment=True)
+    try:
+        # Caminho do arquivo na pasta de upload
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        
+        # Verifique se o arquivo existe antes de tentar baixá-lo
+        if os.path.exists(file_path):
+            return send_file(file_path, as_attachment=True)
+        else:
+            return "Arquivo não encontrado", 404
+    except Exception as e:
+        return str(e), 500
+
+
 
 if __name__ == "__main__":
     serve(app, host='0.0.0.0', port=8080)  # Usando waitress para rodar o Flask
