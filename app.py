@@ -442,9 +442,21 @@ def registrar_usuario():
     return render_template('registrar_usuario.html', usuarios=usuarios)
 
 
-@app.route('/download/<path:filename>')
+@app.route('/download_file/<filename>')
 def download_file(filename):
-    return send_from_directory(UPLOAD_FOLDER, filename, as_attachment=True)
+    try:
+        # Caminho completo para o arquivo
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        
+        # Verifica se o arquivo existe
+        if os.path.exists(file_path):
+            return send_from_directory(app.config['UPLOAD_FOLDER'], filename, as_attachment=True)
+        else:
+            flash("Arquivo não encontrado.", "error")
+            return redirect(url_for('dashboard'))  # Redireciona para o dashboard caso o arquivo não exista
+    except Exception as e:
+        flash(f"Ocorreu um erro ao tentar fazer o download: {e}", "error")
+        return redirect(url_for('dashboard'))
 
 
 if __name__ == "__main__":
