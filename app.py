@@ -477,14 +477,14 @@ def registrar_usuario():
     return render_template('registrar_usuario.html', usuarios=usuarios)
 
 # Rota para download de arquivo
-
 @app.route('/download/<filename>')
 def download_file(filename):
     return f"Downloading {filename}"
 
 @app.route('/another_download/<filename>')
-def another_download_file(filename):  # Função renomeada
+def another_download_file(filename):  # Renomeado para evitar conflito
     return f"Another download {filename}"
+
 
 
 
