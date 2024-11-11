@@ -5,12 +5,8 @@ from flask_migrate import Migrate
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
-from flask import Flask, send_from_directory, url_for
-from flask import Flask, send_from_directory, render_template
-from flask import Flask, send_from_directory, abort
 import os
 from flask import send_from_directory, abort, flash, redirect, url_for
-from flask import Flask, render_template, request, redirect, url_for, send_file
 from waitress import serve  # Importação do waitress
 
 
@@ -23,9 +19,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)  # Inicialize o Flask-Migrate com a aplicação e o banco de dados
 
-# Defina o diretório onde os arquivos são armazenados
-UPLOAD_FOLDER = 'C:/Users/User/Desktop/Quality Monitory/static/upload'
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # Modelo de usuário para o banco de dados
 class Usuario(db.Model):
@@ -53,13 +46,10 @@ class Monitoria(db.Model):
     assinatura = db.Column(db.String(100))  # Adiciona a coluna assinatura
     data_assinatura = db.Column(db.DateTime)  # Adiciona a coluna para data da assinatura
 
-# Rota para servir os arquivos
-@app.route('/uploads/<filename>')
-def download_file(filename):
-    try:
-        return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
-    except FileNotFoundError:
-        abort(404)  # Retorna erro 404 se o arquivo não for encontrado
+ # Define o diretório de upload
+UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static', 'upload')
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # Rota inicial
 @app.route('/')
@@ -221,28 +211,32 @@ def feedback_form():
 
 @app.route('/aplicar_feedback/<int:index>', methods=['GET', 'POST'])
 def aplicar_feedback(index):
-    monitoria = Monitoria.query.get_or_404(index)  # Obtém a monitoria pelo ID
+    # Obtém a monitoria do banco de dados
+    monitoria = Monitoria.query.get_or_404(index)
     
     if request.method == 'POST':
-        assinatura = request.form.get('assinatura')  # Obtém a assinatura do formulário
-        print(f"Assinatura fornecida: '{assinatura}', Matrícula monitorada: '{monitoria.matricula}'")  # Debug
-        print(f"Status atual da monitoria: '{monitoria.status}'")  # Debug
+        # Obtém a assinatura (matrícula) do analista monitorado
+        assinatura = request.form.get('assinatura')
         
-        # Valida a assinatura
+        # Valida a assinatura, deve ser igual à matrícula do analista monitorado
         if assinatura != monitoria.matricula:
             flash('A assinatura deve ser a matrícula do analista monitorado.', 'error')
+            # Se a assinatura for inválida, renderiza novamente a página de feedback
             return render_template('aplicar_feedback.html', monitoria=monitoria, arquivo_pdf=monitoria.arquivo_pdf, gravacao=monitoria.gravacao)
         
-        # Registra a assinatura e atualiza a monitoria
+        # Se a assinatura for válida, registra a assinatura e altera o status da monitoria
         monitoria.assinatura = assinatura
         monitoria.data_assinatura = datetime.now()  # Armazena a data/hora da assinatura
-        monitoria.status = 'aplicada'  # Atualiza o status da monitoria
-        db.session.commit()  # Salva as mudanças no banco de dados
+        monitoria.status = 'aplicada'  # Atualiza o status para 'aplicada'
+        
+        # Comita as mudanças no banco de dados
+        db.session.commit()
         
         flash('Feedback aplicado com sucesso!', 'success')
-        return redirect(url_for('feedback_sucesso'))  # Redireciona para a página de sucesso
-
+        return redirect(url_for('feedback_sucesso'))  # Redireciona para página de sucesso após aplicar o feedback
+    
     return render_template('aplicar_feedback.html', monitoria=monitoria, arquivo_pdf=monitoria.arquivo_pdf, gravacao=monitoria.gravacao)
+
 
 
 
@@ -449,16 +443,22 @@ def registrar_usuario():
     usuarios = Usuario.query.all()  # Busca todos os usuários cadastrados
     return render_template('registrar_usuario.html', usuarios=usuarios)
 
-# Rota para download de arquivo
-
-@app.route('/download/<filename>')
+@app.route('/download_file/<filename>')
 def download_file(filename):
     try:
-        # Tenta enviar o arquivo solicitado da pasta de upload
-        return send_from_directory(app.config['UPLOAD_FOLDER'], filename, as_attachment=True)
-    except FileNotFoundError:
-        # Caso o arquivo não exista
-        abort(404)
+        # Caminho completo para o arquivo
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        
+        # Verifica se o arquivo existe
+        if os.path.exists(file_path):
+            return send_from_directory(app.config['UPLOAD_FOLDER'], filename, as_attachment=True)
+        else:
+            flash("Arquivo não encontrado.", "error")
+            return redirect(url_for('dashboard'))  # Redireciona para o dashboard caso o arquivo não exista
+    except Exception as e:
+        flash(f"Ocorreu um erro ao tentar fazer o download: {e}", "error")
+        return redirect(url_for('dashboard'))  # Redireciona em caso de erro
+
 
 if __name__ == "__main__":
     serve(app, host='0.0.0.0', port=8080)  # Usando waitress para rodar o Flask
