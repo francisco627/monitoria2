@@ -139,7 +139,7 @@ DOCTYPE html>
     <!-- Detalhes da monitoria -->
     <div class="monitoria-details">
         <p><strong>Matrícula:</strong> {{ monitoria.matricula }}</p>
-        <p><strong>ID do Atendimento:</strong> {{ monitoria.atendimento_id }}</p>
+        <p><strong>ID do Atendimento:</strong> {{ monitoria.id_atendimento }}</p>
         <p><strong>Nota:</strong> {{ monitoria.nota }}</p>
         <p><strong>Status:</strong> {{ monitoria.status }}</p>
         <p><strong>Data:</strong> {{ monitoria.data_monitoria.strftime('%d/%m/%Y') }}</p>
@@ -147,19 +147,20 @@ DOCTYPE html>
         <p><strong>Penalidades:</strong> {{ monitoria.penalidades }}</p>
 
         {% if monitoria.arquivo_pdf %}
-            <p><strong>Arquivo PDF:</strong> <a href="{{ url_for('download_file', filename=monitoria.arquivo_pdf) }}" target="_blank">Baixar PDF</a></p>
-        {% else %}
-            <p><strong>Arquivo PDF:</strong> Nenhum arquivo PDF incluído</p>
-        {% endif %}
+    <p><strong>Arquivo PDF:</strong> 
+        <a href="{{ url_for('download_file', filename=monitoria.arquivo_pdf) }}" target="_blank">Baixar PDF</a>
+    </p>
+{% else %}
+    <p><strong>Arquivo PDF:</strong> Nenhum arquivo PDF incluído</p>
+{% endif %}
 
-        <!-- Exibe a gravação se existir -->
-        {% if monitoria.gravacao %}
-            <p><strong>Gravação:</strong> 
-                <a href="{{ url_for('download_file', filename=monitoria.gravacao) }}" target="_blank">Baixar Gravação</a>
-            </p>
-        {% else %}
-            <p><strong>Gravação:</strong> Nenhuma gravação incluída</p>
-        {% endif %}
+{% if monitoria.gravacao %}
+    <p><strong>Gravação:</strong> 
+        <a href="{{ url_for('download_file', filename=monitoria.gravacao) }}" target="_blank">Baixar Gravação</a>
+    </p>
+{% else %}
+    <p><strong>Gravação:</strong> Nenhuma gravação incluída</p>
+{% endif %}
     </div>
 
     <!-- Formulário de feedback -->
