@@ -48,7 +48,7 @@ class Monitoria(db.Model):
     assinatura = db.Column(db.String(100))  # Adiciona a coluna assinatura
     data_assinatura = db.Column(db.DateTime)  # Adiciona a coluna para data da assinatura
 
-UPLOAD_FOLDER = r'C:\Users\User\Desktop\Quality Monitory\upload'
+UPLOAD_FOLDER = os.path.join(app.root_path, 'static', 'upload')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 
@@ -447,8 +447,8 @@ def registrar_usuario():
 # Rota para baixar arquivos da monitoria
 @app.route('/download/<filename>')
 def download_file(filename):
-    # Garante que o arquivo seja buscado no diretório de uploads
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename, as_attachment=True)
+    upload_folder = os.path.join(app.root_path, 'static', 'upload')
+    return send_from_directory(upload_folder, filename, as_attachment=True)
 
 if __name__ == "__main__":
     serve(app, host='0.0.0.0', port=8080)  # Usando waitress para rodar o Flask
