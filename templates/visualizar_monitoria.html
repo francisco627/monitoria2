@@ -133,6 +133,7 @@
         {% if monitoria.arquivo_pdf %}
     <p><strong>Arquivo PDF:</strong>
         <a href="{{ url_for('download_file', filename=monitoria.arquivo_pdf) }}" download>Baixar PDF</a>
+
     </p>
 {% else %}
     <p><strong>Arquivo PDF:</strong> Nenhum arquivo PDF incluído</p>
