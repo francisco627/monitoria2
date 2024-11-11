@@ -450,17 +450,14 @@ def registrar_usuario():
 @app.route('/download/<filename>')
 def download_file(filename):
     try:
-        # Caminho do arquivo na pasta de upload
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         
-        # Verifique se o arquivo existe antes de tentar baixá-lo
         if os.path.exists(file_path):
             return send_file(file_path, as_attachment=True)
         else:
-            return "Arquivo não encontrado", 404
+            return render_template('pagina_atual.html', error="Arquivo não encontrado")
     except Exception as e:
-        return str(e), 500
-
+        return render_template('pagina_atual.html', error="Erro ao tentar baixar o arquivo: " + str(e))
 
 
 if __name__ == "__main__":
