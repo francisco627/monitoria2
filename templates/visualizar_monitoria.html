@@ -115,7 +115,7 @@
         <h1>Detalhes da Monitoria</h1>
     </header>
     <main class="container">
-        <img src="../static/static/img/logo.png" alt="Logo Fivenet Internet 5 Estrelas" class="logo">
+        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo Fivenet Internet 5 Estrelas" class="logo">
         <h2>Monitoria: {{ monitoria.nome_analista }}</h2>
         
         <div class="info-card">
