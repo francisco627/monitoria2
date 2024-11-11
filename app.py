@@ -11,7 +11,7 @@ from waitress import serve  # Importação do waitress
 
 
 app = Flask(__name__)
-app.secret_key = 'chave-secreta-para-sessao'
+app.secret_key = 'supersecretkey'
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://monitoria_db_user:qvof4jF81loI45WsH3DQpccbx1jb7GX8@dpg-cslrrfa3esus73ca72jg-a.oregon-postgres.render.com/monitoria_db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -46,7 +46,7 @@ class Monitoria(db.Model):
     assinatura = db.Column(db.String(100))  # Adiciona a coluna assinatura
     data_assinatura = db.Column(db.DateTime)  # Adiciona a coluna para data da assinatura
 
- #Define o diretório de upload
+ # Define o diretório de upload
 UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static', 'upload')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -458,7 +458,6 @@ def download_file(filename):
     except Exception as e:
         flash(f"Ocorreu um erro ao tentar fazer o download: {e}", "error")
         return redirect(url_for('dashboard'))  # Redireciona em caso de erro
-
 
 
 if __name__ == "__main__":
