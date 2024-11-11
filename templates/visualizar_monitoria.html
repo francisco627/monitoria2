@@ -3,42 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detalhes da Monitoria</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <title>Detalhes da Monitoria</title>
+    <style>
+        /* Seu estilo continua aqui */
+    </style>
 </head>
 <body>
     <header>
         <h1>Detalhes da Monitoria</h1>
     </header>
     <main class="container">
+        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo Fivenet Internet 5 Estrelas" class="logo">
         <h2>Monitoria: {{ monitoria.nome_analista }}</h2>
-
+        
         <div class="info-card">
-            <p><strong>Matrícula:</strong> {{ monitoria.matricula }}</p>
-            <p><strong>ID do Atendimento:</strong> {{ monitoria.id_atendimento }}</p>
-            <p><strong>Nota:</strong> {{ monitoria.nota }}</p>
-            <p><strong>Status:</strong> {{ monitoria.status }}</p>
-            <p><strong>Data:</strong> {{ monitoria.data_monitoria.strftime('%d/%m/%Y') }}</p>
-            <p><strong>Data da Assinatura:</strong> {{ monitoria.data_assinatura }}</p>
-            <p><strong>Descritivo:</strong> {{ monitoria.descritivo }}</p>
-            <p><strong>Penalidades:</strong> {{ monitoria.penalidades }}</p>
+            <p><span class="strong">Matrícula:</span> {{ monitoria.matricula }}</p>
+            <p><span class="strong">ID do Atendimento:</span> {{ monitoria.id_atendimento }}</p>
+            <p><span class="strong">Nota:</span> {{ monitoria.nota }}</p>
+            <p><span class="strong">Status:</span> {{ monitoria.status }}</p>
+            <p><span class="strong">Data:</span> {{ monitoria.data_monitoria.strftime('%d/%m/%Y') }}</p>
+            <p><span class="strong">Data da Assinatura:</span> {{ monitoria.data_assinatura }}</p>
+            <p><span class="strong">Descritivo:</span> {{ monitoria.descritivo }}</p>
+            <p><span class="strong">Penalidades:</span> {{ monitoria.penalidades }}</p>
         </div>
 
-        <!-- Link para download do PDF -->
+        <!-- Link para o download do PDF -->
         {% if monitoria.arquivo_pdf %}
             <a href="{{ url_for('download_file', filename=monitoria.arquivo_pdf) }}" class="button">Baixar PDF</a>
-        {% else %}
-            <p>PDF não disponível.</p>
         {% endif %}
 
-        <!-- Link para download da gravação -->
-        {% if monitoria.arquivo_gravacao %}
-            <a href="{{ url_for('download_file', filename=monitoria.arquivo_gravacao) }}" class="button">Baixar Gravação</a>
-        {% else %}
-            <p>Gravação não disponível.</p>
+        <!-- Link para o download da gravação -->
+        {% if monitoria.gravacao %}
+            <a href="{{ url_for('download_file', filename=monitoria.gravacao) }}" class="button">Baixar Gravação</a>
         {% endif %}
 
         <a href="{{ url_for('dashboard') }}" class="button">Voltar ao Dashboard</a>
     </main>
+    <footer>
+        &copy; 2024 Fivenet - Todos os direitos reservados.
+    </footer>
 </body>
 </html>

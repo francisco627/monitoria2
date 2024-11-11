@@ -6,6 +6,7 @@ from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 from flask import Flask, send_from_directory, url_for
+from flask import Flask, send_from_directory, render_template
 import os
 from flask import send_from_directory, abort, flash, redirect, url_for
 from waitress import serve  # Importação do waitress
@@ -49,7 +50,6 @@ class Monitoria(db.Model):
 
 UPLOAD_FOLDER = r'C:\Users\User\Desktop\Quality Monitory\upload'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 
 # Rota inicial
@@ -447,7 +447,7 @@ def registrar_usuario():
 # Rota para baixar arquivos da monitoria
 @app.route('/download/<filename>')
 def download_file(filename):
-    # Envia o arquivo como anexo
+    # Garante que o arquivo seja buscado no diretório de uploads
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename, as_attachment=True)
 
 if __name__ == "__main__":
