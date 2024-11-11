@@ -3,168 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <title>Detalhes da Monitoria</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Arial', sans-serif;
-            background-color: #f4f4f4;
-            color: #333;
-        }
-
-        header {
-            background-color: #003366;
-            color: white;
-            padding: 20px;
-            text-align: center;
-            font-size: 24px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 30px auto;
-            padding: 20px;
-            background-color: white;
-            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
-            border-radius: 10px;
-            transition: box-shadow 0.3s;
-        }
-
-        .logo {
-            max-width: 260px;
-            height: auto;
-            display: block;
-            margin: 0 auto 20px;
-        }
-
-        h2 {
-            color: #003366;
-            margin-bottom: 15px;
-            font-size: 26px;
-            border-bottom: 2px solid #003366;
-            padding-bottom: 10px;
-        }
-
-        p {
-            margin-bottom: 15px;
-            font-size: 18px;
-            line-height: 1.6;
-            color: #555;
-        }
-
-        .strong {
-            font-weight: bold;
-            color: #003366;
-            font-size: 18px;
-        }
-
-        .button {
-            display: inline-block;
-            padding: 12px 20px;
-            background-color: #003366;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            transition: background-color 0.3s, transform 0.3s;
-            font-size: 16px;
-            margin-top: 20px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        }
-
-        .button:hover {
-            background-color: #002244;
-            transform: scale(1.05);
-        }
-
-        footer {
-            margin-top: 20px;
-            text-align: center;
-            font-size: 14px;
-            color: #888;
-        }
-
-        .info-card {
-            background-color: #e8f0fe;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            border-left: 5px solid #003366;
-        }
-
-        @media (max-width: 500px) {
-            .container {
-                padding: 10px;
-            }
-
-            .button {
-                padding: 10px 15px;
-                font-size: 14px;
-            }
-
-            h2 {
-                font-size: 22px;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
     <header>
         <h1>Detalhes da Monitoria</h1>
     </header>
     <main class="container">
-        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo Fivenet Internet 5 Estrelas" class="logo">
         <h2>Monitoria: {{ monitoria.nome_analista }}</h2>
-        
+
         <div class="info-card">
-            <p><span class="strong">Matrícula:</span> {{ monitoria.matricula }}</p>
-            <p><span class="strong">ID do Atendimento:</span> {{ monitoria.id_atendimento }}</p>
-            <p><span class="strong">Nota:</span> {{ monitoria.nota }}</p>
-            <p><span class="strong">Status:</span> {{ monitoria.status }}</p>
-            <p><span class="strong">Data:</span> {{ monitoria.data_monitoria.strftime('%d/%m/%Y') }}</p>
-            <p><span class="strong">Data da Assinatura:</span> {{ monitoria.data_assinatura }}</p>
-            <p><span class="strong">Descritivo:</span> {{ monitoria.descritivo }}</p>
-            <p><span class="strong">Penalidades:</span> {{ monitoria.penalidades }}</p>
+            <p><strong>Matrícula:</strong> {{ monitoria.matricula }}</p>
+            <p><strong>ID do Atendimento:</strong> {{ monitoria.id_atendimento }}</p>
+            <p><strong>Nota:</strong> {{ monitoria.nota }}</p>
+            <p><strong>Status:</strong> {{ monitoria.status }}</p>
+            <p><strong>Data:</strong> {{ monitoria.data_monitoria.strftime('%d/%m/%Y') }}</p>
+            <p><strong>Data da Assinatura:</strong> {{ monitoria.data_assinatura }}</p>
+            <p><strong>Descritivo:</strong> {{ monitoria.descritivo }}</p>
+            <p><strong>Penalidades:</strong> {{ monitoria.penalidades }}</p>
         </div>
 
-        <!-- Link para o download do arquivo -->
-        <a href="{{ url_for('download_file', filename=monitoria.arquivo_pdf) }}" class="button">Baixar PDF</a>
-        
+        <!-- Link para download do PDF -->
+        {% if monitoria.arquivo_pdf %}
+            <a href="{{ url_for('download_file', filename=monitoria.arquivo_pdf) }}" class="button">Baixar PDF</a>
+        {% else %}
+            <p>PDF não disponível.</p>
+        {% endif %}
+
+        <!-- Link para download da gravação -->
+        {% if monitoria.arquivo_gravacao %}
+            <a href="{{ url_for('download_file', filename=monitoria.arquivo_gravacao) }}" class="button">Baixar Gravação</a>
+        {% else %}
+            <p>Gravação não disponível.</p>
+        {% endif %}
+
         <a href="{{ url_for('dashboard') }}" class="button">Voltar ao Dashboard</a>
     </main>
-    <footer>
-        &copy; 2024 Fivenet - Todos os direitos reservados.
-    </footer>
-
-    <!-- Script JavaScript para o download -->
-    <script>
-        document.getElementById('download-link').addEventListener('click', function(event) {
-            event.preventDefault();  // Previne o comportamento padrão (redirecionamento)
-            const filename = this.getAttribute('data-filename');
-            const url = '{{ url_for("download_file", filename="") }}' + filename;
-
-            // Faz a requisição para o arquivo
-            fetch(url, { method: 'GET', headers: { 'Content-Type': 'application/octet-stream' } })
-                .then(response => {
-                    if (response.ok) {
-                        return response.blob();  // Converte a resposta para um blob
-                    }
-                    throw new Error('Erro ao baixar o arquivo');
-                })
-                .then(blob => {
-                    const a = document.createElement('a');
-                    a.href = URL.createObjectURL(blob);
-                    a.download = filename;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);  // Remove o link temporário após o download
-                })
-                .catch(error => {
-                    alert('Falha ao tentar baixar o arquivo: ' + error.message);
-                });
-        });
-    </script>
 </body>
 </html>

@@ -447,11 +447,8 @@ def registrar_usuario():
 # Rota para baixar arquivos da monitoria
 @app.route('/download/<filename>')
 def download_file(filename):
-    try:
-        # Envia o arquivo do diretório de upload
-        return send_from_directory(app.config['UPLOAD_FOLDER'], filename, as_attachment=True)
-    except FileNotFoundError:
-        return "Arquivo não encontrado", 404
+    # Envia o arquivo como anexo
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename, as_attachment=True)
 
 if __name__ == "__main__":
     serve(app, host='0.0.0.0', port=8080)  # Usando waitress para rodar o Flask
