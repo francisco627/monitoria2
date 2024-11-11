@@ -7,6 +7,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 from flask import Flask, send_from_directory, url_for
 from flask import Flask, send_from_directory, render_template
+from flask import Flask, send_from_directory, abort
 import os
 from flask import send_from_directory, abort, flash, redirect, url_for
 from flask import Flask, render_template, request, redirect, url_for, send_file
@@ -22,6 +23,9 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)  # Inicialize o Flask-Migrate com a aplicação e o banco de dados
 
+# Defina o diretório onde os arquivos são armazenados
+UPLOAD_FOLDER = 'C:/Users/User/Desktop/Quality Monitory/static/upload'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # Modelo de usuário para o banco de dados
 class Usuario(db.Model):
@@ -49,15 +53,13 @@ class Monitoria(db.Model):
     assinatura = db.Column(db.String(100))  # Adiciona a coluna assinatura
     data_assinatura = db.Column(db.DateTime)  # Adiciona a coluna para data da assinatura
 
-
-# Verifica se a pasta de uploads existe
-UPLOAD_FOLDER = 'upload'
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-
 # Rota para servir os arquivos
 @app.route('/uploads/<filename>')
 def download_file(filename):
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+    try:
+        return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+    except FileNotFoundError:
+        abort(404)  # Retorna erro 404 se o arquivo não for encontrado
 
 # Rota inicial
 @app.route('/')
@@ -449,9 +451,14 @@ def registrar_usuario():
 
 # Rota para download de arquivo
 
-app.route('/download/<path:filename>')
+@app.route('/download/<filename>')
 def download_file(filename):
-    return send_from_directory(UPLOAD_FOLDER, filename, as_attachment=True)
+    try:
+        # Tenta enviar o arquivo solicitado da pasta de upload
+        return send_from_directory(app.config['UPLOAD_FOLDER'], filename, as_attachment=True)
+    except FileNotFoundError:
+        # Caso o arquivo não exista
+        abort(404)
 
 
 if __name__ == "__main__":
