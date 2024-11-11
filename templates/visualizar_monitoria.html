@@ -130,7 +130,7 @@
         </div>
 
         <!-- Link para o download do arquivo -->
-        <a href="#" class="button" id="download-link" data-filename="{{ monitoria.arquivo_pdf }}">Baixar PDF</a>
+        <a href="{{ url_for('download_file', filename=monitoria.arquivo_pdf) }}" class="button">Baixar PDF</a>
         
         <a href="{{ url_for('dashboard') }}" class="button">Voltar ao Dashboard</a>
     </main>

@@ -5,6 +5,7 @@ from flask_migrate import Migrate
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
+from flask import Flask, send_from_directory, url_for
 import os
 from flask import send_from_directory, abort, flash, redirect, url_for
 from waitress import serve  # Importação do waitress
@@ -46,10 +47,10 @@ class Monitoria(db.Model):
     assinatura = db.Column(db.String(100))  # Adiciona a coluna assinatura
     data_assinatura = db.Column(db.DateTime)  # Adiciona a coluna para data da assinatura
 
- # Define o diretório de upload
-UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static', 'upload')
+UPLOAD_FOLDER = r'C:\Users\User\Desktop\Quality Monitory\upload'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
 
 # Rota inicial
 @app.route('/')
@@ -443,22 +444,14 @@ def registrar_usuario():
     usuarios = Usuario.query.all()  # Busca todos os usuários cadastrados
     return render_template('registrar_usuario.html', usuarios=usuarios)
 
-@app.route('/download_file/<filename>')
+# Rota para baixar arquivos da monitoria
+@app.route('/download/<filename>')
 def download_file(filename):
     try:
-        # Caminho completo para o arquivo
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        
-        # Verifica se o arquivo existe
-        if os.path.exists(file_path):
-            return send_from_directory(app.config['UPLOAD_FOLDER'], filename, as_attachment=True)
-        else:
-            flash("Arquivo não encontrado.", "error")
-            return redirect(url_for('dashboard'))  # Redireciona para o dashboard caso o arquivo não exista
-    except Exception as e:
-        flash(f"Ocorreu um erro ao tentar fazer o download: {e}", "error")
-        return redirect(url_for('dashboard'))  # Redireciona em caso de erro
-
+        # Envia o arquivo do diretório de upload
+        return send_from_directory(app.config['UPLOAD_FOLDER'], filename, as_attachment=True)
+    except FileNotFoundError:
+        return "Arquivo não encontrado", 404
 
 if __name__ == "__main__":
     serve(app, host='0.0.0.0', port=8080)  # Usando waitress para rodar o Flask
