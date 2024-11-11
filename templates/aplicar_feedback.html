@@ -141,20 +141,18 @@
         <p><strong>Arquivo PDF:</strong> 
             <a href="{{ url_for('download_file', filename=monitoria.arquivo_pdf) }}" target="_blank">Baixar PDF</a>
         </p>
-        
-        {% else %}
-            <p><strong>Arquivo PDF:</strong> Nenhum arquivo PDF incluído</p>
-        {% endif %}
-
-        <!-- Exibe a gravação se existir -->
-        {% if monitoria.gravacao %}
-            <p><strong>Gravação:</strong> 
-                <a href="{{ url_for('download_file', filename=monitoria.gravacao) }}" target="_blank">Baixar Gravação</a>
-            </p>
-        {% else %}
-            <p><strong>Gravação:</strong> Nenhuma gravação incluída</p>
-        {% endif %}
-    </div>
+    {% else %}
+        <p><strong>Arquivo PDF:</strong> Nenhum arquivo PDF incluído</p>
+    {% endif %}
+    
+    {% if monitoria.gravacao %}
+        <p><strong>Gravação:</strong> 
+            <a href="{{ url_for('download_file', filename=monitoria.gravacao) }}" target="_blank">Baixar Gravação</a>
+        </p>
+    {% else %}
+        <p><strong>Gravação:</strong> Nenhuma gravação incluída</p>
+    {% endif %}
+    
 
     <!-- Formulário de feedback -->
     <form method="POST">
