@@ -4,10 +4,11 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
-import os
-from flask import send_from_directory, abort, flash, redirect, url_for
+from flask import send_from_directory, abort, flash, redirect
+from flask import Flask, send_from_directory, abort
 from waitress import serve  # Importação do waitress
+import os
+
 
 
 app = Flask(__name__)
@@ -46,9 +47,11 @@ class Monitoria(db.Model):
     assinatura = db.Column(db.String(100))  # Adiciona a coluna assinatura
     data_assinatura = db.Column(db.DateTime)  # Adiciona a coluna para data da assinatura
 
- # Define o diretório de upload
-UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static', 'upload')
+ # Defina o caminho absoluto da pasta de upload (alterado conforme seu sistema)
+UPLOAD_FOLDER = r'C:\Users\User\Desktop\Quality Monitory\upload'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+# Cria a pasta se não existir
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # Rota inicial
@@ -443,13 +446,20 @@ def registrar_usuario():
     usuarios = Usuario.query.all()  # Busca todos os usuários cadastrados
     return render_template('registrar_usuario.html', usuarios=usuarios)
 
-@app.route('/download_file/<filename>')
+@app.route('/download/<filename>')
 def download_file(filename):
-    directory = os.path.join(app.root_path, 'static', 'upload')
+    try:
+        # Verifica se o arquivo existe no diretório UPLOAD_FOLDER
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        if not os.path.isfile(file_path):
+            abort(404)  # Retorna erro 404 se o arquivo não for encontrado
 
-    # Checa se o arquivo existe e impede acesso a outros diretórios
-    if not os.path.isfile(os.path.join(directory, filename)):
-        abort(404)  # Retorna um erro 404 se o arquivo não existir
+        # Envia o arquivo como anexo, com o tipo MIME correto
+        return send_from_directory(app.config['UPLOAD_FOLDER'], filename, as_attachment=True)
+    except Exception as e:
+        # Exibe o erro, se necessário
+        print(f"Erro ao tentar baixar o arquivo: {e}")
+        abort(500)  # Retorna erro 500 para falhas inesperadas
 
     # Define o tipo MIME com base na extensão do arquivo
     if filename.lower().endswith('.pdf'):
