@@ -445,19 +445,21 @@ def registrar_usuario():
 
 @app.route('/download_file/<filename>')
 def download_file(filename):
-    try:
-        # Caminho completo para o arquivo
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        
-        # Verifica se o arquivo existe
-        if os.path.exists(file_path):
-            return send_from_directory(app.config['UPLOAD_FOLDER'], filename, as_attachment=True)
-        else:
-            flash("Arquivo não encontrado.", "error")
-            return redirect(url_for('dashboard'))  # Redireciona para o dashboard caso o arquivo não exista
-    except Exception as e:
-        flash(f"Ocorreu um erro ao tentar fazer o download: {e}", "error")
-        return redirect(url_for('dashboard'))  # Redireciona em caso de erro
+    directory = os.path.join(app.root_path, 'static', 'upload')
+
+    # Checa se o arquivo existe e impede acesso a outros diretórios
+    if not os.path.isfile(os.path.join(directory, filename)):
+        abort(404)  # Retorna um erro 404 se o arquivo não existir
+
+    # Define o tipo MIME com base na extensão do arquivo
+    if filename.lower().endswith('.pdf'):
+        mimetype = 'application/pdf'
+    elif filename.lower().endswith('.mp4'):
+        mimetype = 'video/mp4'
+    else:
+        mimetype = 'application/octet-stream'  # Tipo genérico para outros arquivos
+
+    return send_from_directory(directory, filename, as_attachment=True, mimetype=mimetype)
 
 
 if __name__ == "__main__":
