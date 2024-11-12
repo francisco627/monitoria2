@@ -4,8 +4,6 @@ DOCTYPE html>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aplicar Feedback</title>
-    {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
         <ul>
         {% for category, message in messages %}
             <li class="{{ category }}">{{ message }}</li>
@@ -148,7 +146,8 @@ DOCTYPE html>
 
         {% if monitoria.arquivo_pdf %}
         <p><strong>Arquivo PDF:</strong> 
-            <a href="{{ url_for('download_file', filename=monitoria.arquivo_pdf) }}" target="_blank">Baixar PDF</a>
+            <a href="{{ url_for('download_file', filename=monitoria.arquivo_pdf) }}">Baixar PDF</a>
+
         </p>
     {% else %}
         <p><strong>Arquivo PDF:</strong> Nenhum arquivo PDF incluído</p>
@@ -160,7 +159,22 @@ DOCTYPE html>
         </p>
     {% else %}
         <p><strong>Gravação:</strong> Nenhuma gravação incluída</p>
-    {% endif %}
+    {% endif %{% if monitoria.arquivo_pdf %}
+    <p><strong>Arquivo PDF:</strong> 
+        <a href="{{ url_for('download_file', filename=monitoria.arquivo_pdf) }}">Baixar PDF</a>
+    </p>
+{% else %}
+    <p><strong>Arquivo PDF:</strong> Nenhum arquivo PDF incluído</p>
+{% endif %}
+
+{% if monitoria.gravacao %}
+    <p><strong>Gravação:</strong> 
+        <a href="{{ url_for('download_file', filename=monitoria.gravacao) }}">Baixar Gravação</a>
+    </p>
+{% else %}
+    <p><strong>Gravação:</strong> Nenhuma gravação incluída</p>
+{% endif %}
+
     
     </div>
 
