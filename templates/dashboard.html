@@ -176,6 +176,17 @@
                     <td>{{ monitoria.data_monitoria.strftime('%d/%m/%Y %H:%M') }}</td>
                     <td>{{ monitoria.data_assinatura.strftime('%d/%m/%Y %H:%M') if monitoria.data_assinatura else 'Não assinada' }}</td> <!-- Exibindo a data da assinatura -->
                     <td class="actions-cell">
+                         <!-- Botão para Excluir a monitoria -->
+                <form action="{{ url_for('excluir_monitoria', id=monitoria.id) }}" method="POST" style="display:inline;">
+                    <button type="submit" onclick="return confirm('Tem certeza que deseja excluir esta monitoria?');" style="background-color: #d9534f; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer;">
+                        Excluir
+                    </button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
                         <a href="{{ url_for('visualizar_monitoria', id=monitoria.id) }}" class="button">Ver</a>
                         <!-- Condicional para exibir botão "Assinar Feedback" para analistas -->
                         {% if session['grupo'] == 'analista' and monitoria.status == 'pendente' %}

@@ -462,6 +462,18 @@ def download_file(filename):
     return send_from_directory(directory, filename, as_attachment=True, mimetype=mimetype)
 
 
+@app.route('/excluir_monitoria/<int:id>', methods=['POST'])
+def excluir_monitoria(id):
+    # Consultar a monitoria pelo ID
+    monitoria = Monitoria.query.get(id)
+    if monitoria:
+        db.session.delete(monitoria)  # Remove a monitoria
+        db.session.commit()  # Confirma a exclusão no banco de dados
+        flash('Monitoria excluída com sucesso!', 'success')
+    else:
+        flash('Monitoria não encontrada.', 'error')
+    return redirect(url_for('dashboard'))  # Redireciona de volta para o dashboard
+
 if __name__ == "__main__":
     serve(app, host='0.0.0.0', port=8080)  # Usando waitress para rodar o Flask
     app.run(debug=True)
