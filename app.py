@@ -345,83 +345,91 @@ def editar_usuario(id):
 # Rota para exibir relatórios
 @app.route('/relatorio', methods=['GET', 'POST'])
 def relatorio():
-    # Obtem a lista de analistas do grupo
     analistas = Usuario.query.filter_by(grupo='analista').all()
     
-    # Dicionários para armazenar médias e quantidades de monitorias por analista
+    # Dicionários para armazenar as informações de médias
     media_notas = {}
     media_pontuacao_por_analista = {}
     nota_media_por_analista = {}
 
-    # Verifica se há filtro na requisição POST
+    # Pontuações fixas para cada item
+    valores_pontuacao = {
+        'se_apresentou': 10,
+        'atendeu_prontidao': 15,
+        'ouviu_demanda': 10,
+        'demonstrou_empatia': 10,
+        'realizou_sondagem': 15
+    }
+
+    # Itens críticos
+    itens_criticos = ['se_apresentou', 'atendeu_prontidao', 'realizou_sondagem']
+
+    # Inicializa como "None" para indicar que é consolidado
+    analista_selecionado = None
+    data_inicio = None
+    data_fim = None
+
     if request.method == 'POST':
         analista_selecionado = request.form.get('analista')
         data_inicio = request.form.get('data_inicio')
         data_fim = request.form.get('data_fim')
 
-        # Filtra as monitorias com base no analista e nas datas
-        query = Monitoria.query
+    # Definindo a consulta principal
+    query = Monitoria.query
 
-        if analista_selecionado:
-            query = query.filter_by(matricula=analista_selecionado)
+    # Aplica filtros se forem fornecidos
+    if analista_selecionado:
+        query = query.filter_by(matricula=analista_selecionado)
+    if data_inicio and data_fim:
+        query = query.filter(Monitoria.data_monitoria.between(data_inicio, data_fim))
 
-        if data_inicio and data_fim:
-            query = query.filter(Monitoria.data_monitoria.between(data_inicio, data_fim))
+    monitorias = query.all()
 
-        monitorias = query.all()
+    # Lógica para cálculo da pontuação por analista ou consolidado
+    for monitoria in monitorias:
+        analista = monitoria.nome_analista if analista_selecionado else 'Consolidado'
+        media_notas.setdefault(analista, []).append(monitoria.nota)
+        media_pontuacao_por_analista.setdefault(analista, {
+            'se_apresentou': [],
+            'atendeu_prontidao': [],
+            'ouviu_demanda': [],
+            'demonstrou_empatia': [],
+            'realizou_sondagem': []
+        })
 
-        # Cálculo da média de notas por analista e contagem de monitorias
-        for monitoria in monitorias:
-            media_notas.setdefault(monitoria.nome_analista, []).append(monitoria.nota)
-
-        # Calcula a média geral de notas e quantidade de monitorias por analista
-        for analista, notas in media_notas.items():
-            nota_media_por_analista[analista] = {
-                'media': sum(notas) / len(notas),
-                'quantidade': len(notas)
-            }
-
-        # Estrutura para calcular média de pontuação por item para cada analista
-        for monitoria in monitorias:
-            media_pontuacao_por_analista.setdefault(monitoria.nome_analista, {
-                'se_apresentou': [],
-                'atendeu_prontidao': [],
-                'ouviu_demanda': [],
-                'demonstrou_empatia': [],
-                'realizou_sondagem': []
-            })
-
-            # Para cada item, verifica se houve penalidade e atribui pontuação
-            for item in media_pontuacao_por_analista[monitoria.nome_analista].keys():
-                if item in monitoria.penalidades:
-                    media_pontuacao_por_analista[monitoria.nome_analista][item].append(0)  # Penalidade
+        # Atribui pontuações
+        for item in media_pontuacao_por_analista[analista].keys():
+            if item in monitoria.penalidades:
+                media_pontuacao_por_analista[analista][item].append(0)  # Penalidade
+            else:
+                if item in itens_criticos:
+                    media_pontuacao_por_analista[analista][item].append(0)
                 else:
-                    media_pontuacao_por_analista[monitoria.nome_analista][item].append(10)  # Sem penalidade
+                    media_pontuacao_por_analista[analista][item].append(valores_pontuacao[item])
 
-        # Calcula a média de pontuação para cada item por analista
-        for analista, items in media_pontuacao_por_analista.items():
+    # Calcula médias
+    for analista, items in media_pontuacao_por_analista.items():
+        if any(p == 0 for item, p in items.items() if item in itens_criticos):
+            nota_media_por_analista[analista] = {'media': 0, 'quantidade': 0}
+        else:
             for item, pontuacoes in items.items():
                 if pontuacoes:
                     media_pontuacao_por_analista[analista][item] = sum(pontuacoes) / len(pontuacoes)
                 else:
                     media_pontuacao_por_analista[analista][item] = 0
 
-    # Renderiza o template com as variáveis necessárias
+            nota_media_por_analista[analista] = {
+                'media': sum([p for p in items.values()]) / len(items),
+                'quantidade': len(items)
+            }
+
     return render_template(
-        'relatorio.html',
-        analistas=analistas,
-        media_notas=media_notas,
-        media_pontuacao_por_analista=media_pontuacao_por_analista,
+        'relatorio.html', 
+        analistas=analistas, 
+        media_pontuacao_por_analista=media_pontuacao_por_analista, 
         nota_media_por_analista=nota_media_por_analista
     )
 
-    return render_template(
-        'relatorio.html',
-        analistas=analistas,
-        media_notas=media_notas,
-        media_pontuacao_por_analista=media_pontuacao_por_analista,
-        nota_media_por_analista=nota_media_por_analista
-    )
 
 # Rota para registrar um novo usuário
 @app.route('/registrar_usuario', methods=['GET', 'POST'])
