@@ -114,6 +114,8 @@
         /* Estilo do gráfico */
         .chart-container {
             margin-top: 20px;
+            width: 100%;
+            height: 400px;  /* Ajuste de altura do gráfico */
         }
 
         /* Estilo geral para a tabela */
@@ -149,11 +151,17 @@
                 padding: 10px;
                 margin: 10px;
             }
+            
+
 
             .form-group input, 
             .form-group select, 
             .form-group button {
                 width: 100%;
+            }
+
+            .chart-container {
+                height: 300px; /* Menor altura do gráfico para telas menores */
             }
         }
     </style>
@@ -211,57 +219,55 @@
         <canvas id="graficoAnalista"></canvas>
     </div>
 
-    <script>
-        var ctx = document.getElementById('graficoAnalista').getContext('2d');
-        
-        // Passando os dados do Python para o JavaScript corretamente
-        var analistasDados =  media_pontuacao_por_analista | tojson | safe ;
-        
-        // Labels do gráfico
-        var labels = ["Se Apresentou", "Atendeu Prontidão", "Ouviu Demanda", "Demonstrou Empatia", "Realizou Sondagem"];
-        
-        // Variável que contém o analista selecionado (se houver)
-        var analistaSelecionado = "{{ analista_selecionado }}";  // Variável do Jinja
-        
-        // Verifique se os dados do analista selecionado existem, caso contrário, use dados consolidados
-        var pontuacoes = analistasDados[analistaSelecionado] || {};  // Dados para o analista selecionado ou consolidado
-        
-        // Defina a estrutura do gráfico com os dados selecionados
-        var grafico = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: "Pontuação Alcançada",
-                    data: [
-                        pontuacoes["se_apresentou"] || 0,
-                        pontuacoes["atendeu_prontidao"] || 0,
-                        pontuacoes["ouviu_demanda"] || 0,
-                        pontuacoes["demonstrou_empatia"] || 0,
-                        pontuacoes["realizou_sondagem"] || 0
-                    ],
-                    backgroundColor: "rgba(75, 192, 192, 0.2)",
-                    borderColor: "rgba(75, 192, 192, 1)",
-                    borderWidth: 1
-                }, {
-                    label: "Pontuação Máxima",
-                    data: [10, 15, 10, 10, 15],  // Pontuação máxima fixa para comparação
-                    backgroundColor: "rgba(255, 99, 132, 0.2)",
-                    borderColor: "rgba(255, 99, 132, 1)",
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true  // Garante que o eixo Y comece do zero
-                    }
+<script>
+     // Passando o dicionário como JSON para o JavaScript
+     var analistasDados =  media_pontuacao_por_analista | tojson | safe ;
+     var analistaSelecionado = "{{ analista_selecionado }}";  // Variável do Jinja como string
+
+    // Verificando no console o conteúdo de analistasDados
+    console.log(analistasDados); // Verifique o conteúdo no console do navegador para depuração
+
+    // Labels do gráfico
+    var labels = ["Se Apresentou", "Atendeu Prontidão", "Ouviu Demanda", "Demonstrou Empatia", "Realizou Sondagem"];
+
+    // Verifique se há dados para o analista selecionado ou use dados consolidados
+    var pontuacoes = analistasDados[analistaSelecionado] || {}; // Pega os dados do analista selecionado ou dados consolidados
+
+    // Defina os dados para o gráfico (pontuação alcançada e pontuação máxima)
+    var grafico = new Chart(document.getElementById('graficoAnalista').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: "Pontuação Alcançada",
+                data: [
+                    pontuacoes["se_apresentou"] || 0,
+                    pontuacoes["atendeu_prontidao"] || 0,
+                    pontuacoes["ouviu_demanda"] || 0,
+                    pontuacoes["demonstrou_empatia"] || 0,
+                    pontuacoes["realizou_sondagem"] || 0
+                ],
+                backgroundColor: "rgba(75, 192, 192, 0.2)",
+                borderColor: "rgba(75, 192, 192, 1)",
+                borderWidth: 1
+            }, {
+                label: "Pontuação Máxima",
+                data: [10, 15, 10, 10, 15],  // Pontuação máxima para comparação
+                backgroundColor: "rgba(255, 99, 132, 0.2)",
+                borderColor: "rgba(255, 99, 132, 1)",
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true  // Garantir que o eixo Y comece do zero
                 }
             }
-        });
-    </script>
-    
-    
+        }
+    });
+</script>
+
     <!-- Botão para voltar ao dashboard -->
     <a href="/dashboard" class="btn-dashboard">Voltar ao Dashboard</a>
 </div>
