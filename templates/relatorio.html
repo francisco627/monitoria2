@@ -6,62 +6,43 @@
     <title>Relatório de Pontuação</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* Reset de margens e paddings */
-        * {
+        /* Estilos Globais */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f9;
+            color: #333;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
         }
 
-        /* Cor base do tema azul */
-        :root {
-            --cor-primaria: #006ab6; /* Azul Fivenet */
-            --cor-secundaria: #4f9fdb;
-            --cor-escura: #003f71;
-            --cor-clara: #cce0ff;
-            --cor-branca: #ffffff;
-        }
-
-        /* Estilo do corpo da página */
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f0f8ff;
-            color: var(--cor-escura);
-        }
-
-        /* Estilo do cabeçalho */
         header {
-            background-color: var(--cor-primaria);
-            color: var(--cor-branca);
+            display: flex;
+            align-items: center;
+            justify-content: center;
             padding: 20px;
-            text-align: center;
-        }
-
-        header .logo {
-            max-height: 80px; /* Aumentei o tamanho do logo */
-            margin-bottom: 15px;
-            background-color: var(--cor-branca); /* Fundo branco para o logo */
-            border-radius: 8px; /* Borda arredondada */
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Sombra para o logo */
-            padding: 5px; /* Adicionei um pequeno padding para o logo */
-        }
-
-        header h2 {
-            font-size: 28px;
-            font-weight: bold;
-            margin-top: 10px;
-        }
-
-        /* Estilo da seção principal (formulário e conteúdo) */
-        .container {
-            padding: 20px;
-            margin: 20px;
-            background-color: var(--cor-branca);
+            background-color: #007bff;
+            color: white;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
         }
 
-        /* Estilo do formulário */
+        header img {
+            height: 50px;
+            margin-right: 15px;
+        }
+
+        h2 {
+            margin: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
         .form-group {
             margin-bottom: 15px;
         }
@@ -70,129 +51,69 @@
             display: block;
             font-weight: bold;
             margin-bottom: 5px;
+            color: #555;
         }
 
-        .form-group select, 
-        .form-group input, 
-        .form-group button {
+        .form-group input,
+        .form-group select {
             width: 100%;
             padding: 10px;
-            margin: 5px 0;
             border-radius: 4px;
-            border: 1px solid #ccc;
+            border: 1px solid #ddd;
+            box-sizing: border-box;
+            font-size: 1em;
         }
 
-        .form-group button {
-            background-color: var(--cor-primaria);
-            color: var(--cor-branca);
-            cursor: pointer;
-        }
-
-        .form-group button:hover {
-            background-color: var(--cor-secundaria);
-        }
-
-        /* Estilo dos dados do analista */
-        h3 {
-            color: var(--cor-primaria);
-            font-size: 20px;
-            margin-top: 20px;
-        }
-
-        ul {
-            list-style-type: none;
-            padding: 10px;
-            background-color: var(--cor-clara);
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-
-        ul li {
-            margin-bottom: 5px;
-        }
-
-        /* Estilo do gráfico */
-        .chart-container {
-            margin-top: 20px;
+        button[type="submit"] {
+            display: block;
             width: 100%;
-            height: 400px;  /* Ajuste de altura do gráfico */
-        }
-
-        /* Estilo geral para a tabela */
-        strong {
-            font-weight: bold;
-        }
-
-        /* Estilo do botão para voltar ao dashboard */
-        .btn-dashboard {
-            background-color: var(--cor-escura);
-            color: var(--cor-branca);
-            padding: 10px 20px;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
             border: none;
-            border-radius: 5px;
-            text-align: center;
-            display: inline-block;
+            border-radius: 4px;
+            font-size: 1em;
+            font-weight: bold;
             cursor: pointer;
-            margin-top: 30px;
-            text-decoration: none;
         }
 
-        .btn-dashboard:hover {
-            background-color: var(--cor-secundaria);
+        button[type="submit"]:hover {
+            background-color: #0056b3;
         }
 
-        /* Responsividade para dispositivos móveis */
-        @media screen and (max-width: 768px) {
-            header .logo {
-                max-height: 60px;
-            }
-
-            .container {
-                padding: 10px;
-                margin: 10px;
-            }
-            
-
-
-            .form-group input, 
-            .form-group select, 
-            .form-group button {
-                width: 100%;
-            }
-
-            .chart-container {
-                height: 300px; /* Menor altura do gráfico para telas menores */
-            }
+        .chart-container {
+            margin-top: 40px;
+            padding: 20px;
         }
     </style>
 </head>
 <body>
 
 <header>
-    <img src="{{ url_for('static', filename='static/img/logo.png') }}" alt="Logo Fivenet" class="logo">
+    <img src="{{ url_for('static', filename='static/img/logo.png') }}" alt="Logo Fivenet">
     <h2>Relatório de Pontuação</h2>
 </header>
 
 <div class="container">
-    <form method="POST">
+    <form method="POST" id="filterForm">
         <div class="form-group">
             <label for="analista">Analista:</label>
             <select name="analista" id="analista">
                 <option value="">Selecione</option>
                 {% for analista in analistas %}
-                    <option value="{{ analista.matricula }}" {% if analista.matricula == analista_selecionado %}selected{% endif %}>{{ analista.nome }}</option>
+                    <option value="{{ analista.matricula }}">{{ analista.nome }}</option>
                 {% endfor %}
             </select>
         </div>
 
         <div class="form-group">
             <label for="data_inicio">Data Início:</label>
-            <input type="date" name="data_inicio" id="data_inicio" value="{{ data_inicio }}">
+            <input type="date" name="data_inicio" id="data_inicio">
         </div>
 
         <div class="form-group">
             <label for="data_fim">Data Fim:</label>
-            <input type="date" name="data_fim" id="data_fim" value="{{ data_fim }}">
+            <input type="date" name="data_fim" id="data_fim">
         </div>
 
         <div class="form-group">
@@ -200,76 +121,92 @@
         </div>
     </form>
 
-    <!-- Exibindo os dados do analista -->
-    {% for analista, items in media_pontuacao_por_analista.items() %}
-        <h3>Analista: {{ analista }}</h3>
-        <ul>
-            <li>Se Apresentou: {{ items.se_apresentou }}</li>
-            <li>Atendeu Prontidão: {{ items.atendeu_prontidao }}</li>
-            <li>Ouviu Demanda: {{ items.ouviu_demanda }}</li>
-            <li>Demonstrou Empatia: {{ items.demonstrou_empatia }}</li>
-            <li>Realizou Sondagem: {{ items.realizou_sondagem }}</li>
-        </ul>
-        <p><strong>Média das Notas: </strong>{{ nota_media_por_analista[analista].media }}</p>
-        <p><strong>Quantidade de Monitorias: </strong>{{ nota_media_por_analista[analista].quantidade }}</p>
-    {% endfor %}
-
-    <!-- Gráfico -->
     <div class="chart-container">
         <canvas id="graficoAnalista"></canvas>
     </div>
 
-<script>
-     // Passando o dicionário como JSON para o JavaScript
-     var analistasDados =  media_pontuacao_por_analista | tojson | safe ;
-     var analistaSelecionado = "{{ analista_selecionado }}";  // Variável do Jinja como string
+    <script>
+        // Carregar dados do servidor para o JavaScript
+        var analistasDados = JSON.parse('{{ media_pontuacao_por_analista | tojson | safe }}');
+        var analistaSelecionado = "{{ analista_selecionado }}";
+        var ctx = document.getElementById('graficoAnalista').getContext('2d');
 
-    // Verificando no console o conteúdo de analistasDados
-    console.log(analistasDados); // Verifique o conteúdo no console do navegador para depuração
+        // Definir labels para os itens do gráfico
+        var labels = ["Se Apresentou", "Atendeu Prontidão", "Ouviu Demanda", "Demonstrou Empatia", "Realizou Sondagem"];
+        var pontuacoes = analistasDados[analistaSelecionado] || {
+            se_apresentou: 0,
+            atendeu_prontidao: 0,
+            ouviu_demanda: 0,
+            demonstrou_empatia: 0,
+            realizou_sondagem: 0
+        };
 
-    // Labels do gráfico
-    var labels = ["Se Apresentou", "Atendeu Prontidão", "Ouviu Demanda", "Demonstrou Empatia", "Realizou Sondagem"];
-
-    // Verifique se há dados para o analista selecionado ou use dados consolidados
-    var pontuacoes = analistasDados[analistaSelecionado] || {}; // Pega os dados do analista selecionado ou dados consolidados
-
-    // Defina os dados para o gráfico (pontuação alcançada e pontuação máxima)
-    var grafico = new Chart(document.getElementById('graficoAnalista').getContext('2d'), {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: "Pontuação Alcançada",
-                data: [
-                    pontuacoes["se_apresentou"] || 0,
-                    pontuacoes["atendeu_prontidao"] || 0,
-                    pontuacoes["ouviu_demanda"] || 0,
-                    pontuacoes["demonstrou_empatia"] || 0,
-                    pontuacoes["realizou_sondagem"] || 0
-                ],
-                backgroundColor: "rgba(75, 192, 192, 0.2)",
-                borderColor: "rgba(75, 192, 192, 1)",
-                borderWidth: 1
-            }, {
-                label: "Pontuação Máxima",
-                data: [10, 15, 10, 10, 15],  // Pontuação máxima para comparação
-                backgroundColor: "rgba(255, 99, 132, 0.2)",
-                borderColor: "rgba(255, 99, 132, 1)",
-                borderWidth: 1
-            }]
-        },
-        options: {
-            scales: {
-                y: {
-                    beginAtZero: true  // Garantir que o eixo Y comece do zero
-                }
+        // Função para criar ou atualizar o gráfico com novos dados
+        function criarOuAtualizarGrafico(dados) {
+            // Se já existe um gráfico, atualiza-o
+            if (window.grafico) {
+                window.grafico.data.datasets[0].data = [
+                    dados.se_apresentou || 0,
+                    dados.atendeu_prontidao || 0,
+                    dados.ouviu_demanda || 0,
+                    dados.demonstrou_empatia || 0,
+                    dados.realizou_sondagem || 0
+                ];
+                window.grafico.update();
+            } else {
+                // Cria um novo gráfico se ele ainda não existe
+                window.grafico = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: "Pontuação Alcançada",
+                            data: [
+                                dados.se_apresentou || 0,
+                                dados.atendeu_prontidao || 0,
+                                dados.ouviu_demanda || 0,
+                                dados.demonstrou_empatia || 0,
+                                dados.realizou_sondagem || 0
+                            ],
+                            backgroundColor: "rgba(75, 192, 192, 0.2)",
+                            borderColor: "rgba(75, 192, 192, 1)",
+                            borderWidth: 1
+                        }, {
+                            label: "Pontuação Máxima",
+                            data: [10, 15, 10, 10, 15],
+                            backgroundColor: "rgba(255, 99, 132, 0.2)",
+                            borderColor: "rgba(255, 99, 132, 1)",
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
             }
         }
-    });
-</script>
 
-    <!-- Botão para voltar ao dashboard -->
-    <a href="/dashboard" class="btn-dashboard">Voltar ao Dashboard</a>
+        // Primeira renderização do gráfico
+        criarOuAtualizarGrafico(pontuacoes);
+
+        // Atualizar gráfico ao enviar o formulário
+        document.getElementById('filterForm').onsubmit = function(event) {
+            event.preventDefault();
+            // Obtenha o analista selecionado e datas do formulário
+            var formData = new FormData(this);
+            var analista = formData.get('analista');
+
+            // Atualize os dados do gráfico com os novos dados do analista
+            if (analista) {
+                var dadosAtualizados = analistasDados[analista] || {};
+                criarOuAtualizarGrafico(dadosAtualizados);
+            }
+        };
+    </script>
 </div>
 
 </body>
