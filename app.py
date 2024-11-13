@@ -343,7 +343,6 @@ def editar_usuario(id):
     return render_template('editar_usuario.html', usuario=usuario)
 
 # Rota para exibir relatórios
-# Rota para exibir relatórios
 @app.route('/relatorio', methods=['GET', 'POST'])
 def relatorio():
     analistas = Usuario.query.filter_by(grupo='analista').all()
@@ -424,12 +423,15 @@ def relatorio():
                 'quantidade': len(items)
             }
 
+    # Passando os dados necessários para o template
     return render_template(
-        'relatorio.html', 
-        analistas=analistas, 
-        media_pontuacao_por_analista=media_pontuacao_por_analista, 
-        nota_media_por_analista=nota_media_por_analista
-    )
+    'relatorio.html', 
+    analistas=analistas, 
+    media_pontuacao_por_analista=media_pontuacao_por_analista, 
+    nota_media_por_analista=nota_media_por_analista,
+    valores_pontuacao=valores_pontuacao  # Passando valores para o gráfico
+)
+
 
 
 # Rota para registrar um novo usuário

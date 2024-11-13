@@ -38,12 +38,16 @@
         }
 
         header .logo {
-            max-height: 50px;
-            margin-bottom: 10px;
+            max-height: 80px; /* Aumentei o tamanho do logo */
+            margin-bottom: 15px;
+            background-color: var(--cor-branca); /* Fundo branco para o logo */
+            border-radius: 8px; /* Borda arredondada */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Sombra para o logo */
+            padding: 5px; /* Adicionei um pequeno padding para o logo */
         }
 
         header h2 {
-            font-size: 24px;
+            font-size: 28px;
             font-weight: bold;
             margin-top: 10px;
         }
@@ -117,10 +121,28 @@
             font-weight: bold;
         }
 
+        /* Estilo do botão para voltar ao dashboard */
+        .btn-dashboard {
+            background-color: var(--cor-escura);
+            color: var(--cor-branca);
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            text-align: center;
+            display: inline-block;
+            cursor: pointer;
+            margin-top: 30px;
+            text-decoration: none;
+        }
+
+        .btn-dashboard:hover {
+            background-color: var(--cor-secundaria);
+        }
+
         /* Responsividade para dispositivos móveis */
         @media screen and (max-width: 768px) {
             header .logo {
-                max-height: 40px;
+                max-height: 60px;
             }
 
             .container {
@@ -139,7 +161,7 @@
 <body>
 
 <header>
-    <img src="{{ url_for('static', filename='static/img/logo.png') }}" alt="Logo Fivenet">
+    <img src="{{ url_for('static', filename='static/img/logo.png') }}" alt="Logo Fivenet" class="logo">
     <h2>Relatório de Pontuação</h2>
 </header>
 
@@ -150,19 +172,19 @@
             <select name="analista" id="analista">
                 <option value="">Selecione</option>
                 {% for analista in analistas %}
-                    <option value="{{ analista.matricula }}">{{ analista.nome }}</option>
+                    <option value="{{ analista.matricula }}" {% if analista.matricula == analista_selecionado %}selected{% endif %}>{{ analista.nome }}</option>
                 {% endfor %}
             </select>
         </div>
 
         <div class="form-group">
             <label for="data_inicio">Data Início:</label>
-            <input type="date" name="data_inicio" id="data_inicio">
+            <input type="date" name="data_inicio" id="data_inicio" value="{{ data_inicio }}">
         </div>
 
         <div class="form-group">
             <label for="data_fim">Data Fim:</label>
-            <input type="date" name="data_fim" id="data_fim">
+            <input type="date" name="data_fim" id="data_fim" value="{{ data_fim }}">
         </div>
 
         <div class="form-group">
@@ -191,19 +213,39 @@
 
     <script>
         var ctx = document.getElementById('graficoAnalista').getContext('2d');
+        
+        // Passando os dados do Python para o JavaScript corretamente
+        var analistasDados =  media_pontuacao_por_analista | tojson | safe ;
+        
+        // Labels do gráfico
+        var labels = ["Se Apresentou", "Atendeu Prontidão", "Ouviu Demanda", "Demonstrou Empatia", "Realizou Sondagem"];
+        
+        // Variável que contém o analista selecionado (se houver)
+        var analistaSelecionado = "{{ analista_selecionado }}";  // Variável do Jinja
+        
+        // Verifique se os dados do analista selecionado existem, caso contrário, use dados consolidados
+        var pontuacoes = analistasDados[analistaSelecionado] || {};  // Dados para o analista selecionado ou consolidado
+        
+        // Defina a estrutura do gráfico com os dados selecionados
         var grafico = new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: ["Se Apresentou", "Atendeu Prontidão", "Ouviu Demanda", "Demonstrou Empatia", "Realizou Sondagem"],
+                labels: labels,
                 datasets: [{
                     label: "Pontuação Alcançada",
-                    data: [10, 15, 10, 10, 15],
+                    data: [
+                        pontuacoes["se_apresentou"] || 0,
+                        pontuacoes["atendeu_prontidao"] || 0,
+                        pontuacoes["ouviu_demanda"] || 0,
+                        pontuacoes["demonstrou_empatia"] || 0,
+                        pontuacoes["realizou_sondagem"] || 0
+                    ],
                     backgroundColor: "rgba(75, 192, 192, 0.2)",
                     borderColor: "rgba(75, 192, 192, 1)",
                     borderWidth: 1
                 }, {
                     label: "Pontuação Máxima",
-                    data: [10, 15, 10, 10, 15],
+                    data: [10, 15, 10, 10, 15],  // Pontuação máxima fixa para comparação
                     backgroundColor: "rgba(255, 99, 132, 0.2)",
                     borderColor: "rgba(255, 99, 132, 1)",
                     borderWidth: 1
@@ -212,12 +254,16 @@
             options: {
                 scales: {
                     y: {
-                        beginAtZero: true
+                        beginAtZero: true  // Garante que o eixo Y comece do zero
                     }
                 }
             }
         });
     </script>
+    
+    
+    <!-- Botão para voltar ao dashboard -->
+    <a href="/dashboard" class="btn-dashboard">Voltar ao Dashboard</a>
 </div>
 
 </body>
