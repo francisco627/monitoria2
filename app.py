@@ -342,6 +342,7 @@ def editar_usuario(id):
 
     return render_template('editar_usuario.html', usuario=usuario)
 
+# Rota Relatorio
 @app.route('/relatorio', methods=['GET', 'POST'])
 def relatorio():
     analistas = Usuario.query.filter_by(grupo='analista').all()
@@ -372,6 +373,7 @@ def relatorio():
         query = query.filter(Monitoria.data_monitoria.between(data_inicio, data_fim))
 
     monitorias = query.all()
+    quantidade_monitorias = len(monitorias)  # Armazenar quantidade de monitorias filtradas
 
     # Processamento das pontuações
     for monitoria in monitorias:
@@ -390,7 +392,7 @@ def relatorio():
     for analista, items in media_pontuacao_por_analista.items():
         # Verifica itens críticos para definir se a média é zero
         if any(sum(pontos) == 0 for item, pontos in items.items() if item in itens_criticos):
-            nota_media_por_analista[analista] = {'media': 0, 'quantidade': len(items)}
+            nota_media_por_analista[analista] = {'media': 0, 'quantidade': quantidade_monitorias}
         else:
             media_por_item = {
                 item: (sum(pontos) / len(pontos)) if pontos else 0
@@ -399,7 +401,7 @@ def relatorio():
             media_pontuacao_por_analista[analista] = media_por_item
             nota_media_por_analista[analista] = {
                 'media': sum(media_por_item.values()) / len(media_por_item),
-                'quantidade': len(items)
+                'quantidade': quantidade_monitorias
             }
 
     return render_template(
@@ -407,10 +409,9 @@ def relatorio():
         analistas=analistas, 
         media_pontuacao_por_analista=media_pontuacao_por_analista, 
         nota_media_por_analista=nota_media_por_analista,
-        valores_pontuacao=valores_pontuacao
+        valores_pontuacao=valores_pontuacao,
+        quantidade_monitorias=quantidade_monitorias
     )
-
-
 
 # Rota para registrar um novo usuário
 @app.route('/registrar_usuario', methods=['GET', 'POST'])

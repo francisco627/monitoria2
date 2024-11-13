@@ -17,14 +17,14 @@
 
        /* Cabeçalho */
        header {
-            background-color: #fff; /* Alterado para fundo branco */
-            color: #007BFF; /* Texto azul Fivenet */
+            background-color: #fff;
+            color: #007BFF;
             padding: 20px;
             text-align: center;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-bottom: 2px solid #007BFF; /* Linha inferior azul para destaque */
+            border-bottom: 2px solid #007BFF;
         }
 
         header .logo {
@@ -74,6 +74,7 @@
             border-radius: 4px;
             cursor: pointer;
             font-weight: bold;
+            transition: background-color 0.3s;
         }
 
         button:hover {
@@ -109,8 +110,8 @@
 <body>
 
 <header>
-    <img src="{{ url_for('static', filename='static/img/logo.png') }}" alt="Logo Fivenet">
-    
+    <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo Fivenet" class="logo">
+    <h2>Relatório de Pontuação</h2>
 </header>
 
 <div class="container">
