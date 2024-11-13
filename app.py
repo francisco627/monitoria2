@@ -343,6 +343,7 @@ def editar_usuario(id):
     return render_template('editar_usuario.html', usuario=usuario)
 
 # Rota para exibir relatórios
+# Rota para exibir relatórios
 @app.route('/relatorio', methods=['GET', 'POST'])
 def relatorio():
     analistas = Usuario.query.filter_by(grupo='analista').all()
