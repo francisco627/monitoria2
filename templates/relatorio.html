@@ -5,106 +5,104 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Relatório de Pontuação</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
-        /* Estilos Globais */
+        /* Estilo geral */
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f6f9;
-            color: #333;
             margin: 0;
             padding: 0;
+            background-color: #f3f6fb;
+            color: #333;
         }
 
-        header {
+       /* Cabeçalho */
+       header {
+            background-color: #fff; /* Alterado para fundo branco */
+            color: #007BFF; /* Texto azul Fivenet */
+            padding: 20px;
+            text-align: center;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
-            background-color: #007bff;
-            color: white;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-bottom: 2px solid #007BFF; /* Linha inferior azul para destaque */
         }
 
-        header img {
-            height: 50px;
+        header .logo {
+            max-width: 100px;
             margin-right: 15px;
         }
 
-        h2 {
+        header h2 {
             margin: 0;
         }
 
+        /* Conteúdo principal */
         .container {
-            max-width: 800px;
-            margin: 40px auto;
             padding: 20px;
-            background: white;
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: #fff;
             border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
         }
 
+        /* Formulário */
         .form-group {
             margin-bottom: 15px;
         }
 
-        .form-group label {
+        label {
             display: block;
             font-weight: bold;
-            margin-bottom: 5px;
-            color: #555;
+            color: #007BFF;
         }
 
-        .form-group input,
-        .form-group select {
+        input[type="date"],
+        select {
             width: 100%;
-            padding: 10px;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
             border-radius: 4px;
-            border: 1px solid #ddd;
-            box-sizing: border-box;
-            font-size: 1em;
         }
 
-        button[type="submit"] {
-            display: block;
-            width: 100%;
-            padding: 10px;
-            background-color: #007bff;
-            color: white;
+        button {
+            background-color: #007BFF;
+            color: #fff;
+            padding: 10px 20px;
             border: none;
             border-radius: 4px;
-            font-size: 1em;
-            font-weight: bold;
             cursor: pointer;
+            font-weight: bold;
         }
 
-        button[type="submit"]:hover {
+        button:hover {
             background-color: #0056b3;
         }
 
-        .chart-container {
-            margin-top: 40px;
-            padding: 20px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
+        /* Informações do analista */
+        h3 {
+            color: #007BFF;
+            font-size: 1.2em;
             margin-top: 20px;
         }
 
-        table, th, td {
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        ul li {
+            margin-bottom: 8px;
+        }
+
+        /* Gráfico */
+        .chart-container {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f9f9f9;
             border: 1px solid #ddd;
-        }
-
-        th, td {
-            padding: 8px 12px;
-            text-align: left;
-        }
-
-        th {
-            background-color: #007bff;
-            color: white;
+            border-radius: 8px;
         }
     </style>
 </head>
@@ -112,11 +110,11 @@
 
 <header>
     <img src="{{ url_for('static', filename='static/img/logo.png') }}" alt="Logo Fivenet">
-    <h2>Relatório de Pontuação</h2>
+    
 </header>
 
 <div class="container">
-    <form method="POST" id="filterForm">
+    <form method="POST">
         <div class="form-group">
             <label for="analista">Analista:</label>
             <select name="analista" id="analista">
@@ -142,137 +140,51 @@
         </div>
     </form>
 
-    <div id="tabelaMediaNotas">
-        <!-- Tabela com média de notas e quantidade de monitoria por analista -->
-    </div>
-
-    <div id="tabelaAnalistas">
-        <!-- Tabela e dados gerais ou filtrados serão exibidos aqui -->
-    </div>
+    {% for analista, items in media_pontuacao_por_analista.items() %}
+        <h3>Analista: {{ analista }}</h3>
+        <ul>
+            <li>Se Apresentou: {{ items.se_apresentou }}</li>
+            <li>Atendeu Prontidão: {{ items.atendeu_prontidao }}</li>
+            <li>Ouviu Demanda: {{ items.ouviu_demanda }}</li>
+            <li>Demonstrou Empatia: {{ items.demonstrou_empatia }}</li>
+            <li>Realizou Sondagem: {{ items.realizou_sondagem }}</li>
+        </ul>
+        <p><strong>Média das Notas: </strong>{{ nota_media_por_analista[analista].media }}</p>
+        <p><strong>Quantidade de Monitorias: </strong>{{ nota_media_por_analista[analista].quantidade }}</p>
+    {% endfor %}
 
     <div class="chart-container">
         <canvas id="graficoAnalista"></canvas>
     </div>
 
     <script>
-        var analistasDados = JSON.parse('{{ media_pontuacao_por_analista | tojson | safe }}');
-        var analistaSelecionado = "{{ analista_selecionado }}";
         var ctx = document.getElementById('graficoAnalista').getContext('2d');
-
-        // Definir labels para os itens do gráfico
-        var labels = ["Se Apresentou", "Atendeu Prontidão", "Ouviu Demanda", "Demonstrou Empatia", "Realizou Sondagem"];
-
-        // Função para criar ou atualizar o gráfico
-        function criarOuAtualizarGrafico(dados) {
-            if (window.grafico) {
-                window.grafico.data.datasets[0].data = [
-                    dados.se_apresentou || 0,
-                    dados.atendeu_prontidao || 0,
-                    dados.ouviu_demanda || 0,
-                    dados.demonstrou_empatia || 0,
-                    dados.realizou_sondagem || 0
-                ];
-                window.grafico.update();
-            } else {
-                window.grafico = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: "Pontuação Alcançada",
-                            data: [
-                                dados.se_apresentou || 0,
-                                dados.atendeu_prontidao || 0,
-                                dados.ouviu_demanda || 0,
-                                dados.demonstrou_empatia || 0,
-                                dados.realizou_sondagem || 0
-                            ],
-                            backgroundColor: "rgba(75, 192, 192, 0.2)",
-                            borderColor: "rgba(75, 192, 192, 1)",
-                            borderWidth: 1
-                        }, {
-                            label: "Pontuação Máxima",
-                            data: [10, 15, 10, 10, 15],
-                            backgroundColor: "rgba(255, 99, 132, 0.2)",
-                            borderColor: "rgba(255, 99, 132, 1)",
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        scales: {
-                            y: {
-                                beginAtZero: true
-                            }
-                        }
+        var grafico = new Chart(ctx, {
+            type: 'bar',
+            data:  {
+                labels: ["Se Apresentou", "Atendeu Prontidão", "Ouviu Demanda", "Demonstrou Empatia", "Realizou Sondagem"],
+                datasets: [{
+                    label: "Pontuação Alcançada",
+                    data: [10, 15, 10, 10, 15],
+                    backgroundColor: "rgba(75, 192, 192, 0.2)",
+                    borderColor: "rgba(75, 192, 192, 1)",
+                    borderWidth: 1
+                }, {
+                    label: "Pontuação Máxima",
+                    data: [10, 15, 10, 10, 15],
+                    backgroundColor: "rgba(255, 99, 132, 0.2)",
+                    borderColor: "rgba(255, 99, 132, 1)",
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
                     }
-                });
-            }
-        }
-
-        // Função para exibir a tabela com a média de notas e a quantidade de monitorias
-        function exibirTabelaMediaNotas(dados) {
-            var tabelaHTML = '<h3>Média de Notas e Quantidade de Monitorias por Analista</h3><table>';
-            tabelaHTML += '<thead><tr><th>Analista</th><th>Quantidade de Monitorias</th><th>Nota Média</th></tr></thead><tbody>';
-            
-            for (var analista in dados) {
-                var items = dados[analista];
-                var media = items.media || 0;
-                var quantidade = items.quantidade || 0;
-
-                tabelaHTML += `<tr><td>${analista}</td><td>${quantidade}</td><td>${media}</td></tr>`;
-            }
-
-            tabelaHTML += '</tbody></table>';
-            document.getElementById('tabelaMediaNotas').innerHTML = tabelaHTML;
-        }
-
-        // Função para exibir a tabela de monitorias
-        function exibirTabela(dados) {
-            var tabelaHTML = '<h3>Dados de Monitorias</h3><table>';
-            tabelaHTML += '<thead><tr><th>Analista</th><th>Quantidade de Monitorias</th><th>Nota Média</th></tr></thead><tbody>';
-            
-            for (var analista in dados) {
-                var items = dados[analista];
-                var media = items.media || 0;
-                var quantidade = items.quantidade || 0;
-
-                tabelaHTML += `<tr><td>${analista}</td><td>${quantidade}</td><td>${media}</td></tr>`;
-            }
-
-            tabelaHTML += '</tbody></table>';
-            document.getElementById('tabelaAnalistas').innerHTML = tabelaHTML;
-        }
-
-        // Exibir os dados gerais ao carregar a página
-        exibirTabelaMediaNotas(analistasDados);  // Tabela de média de notas e monitorias
-        exibirTabela(analistasDados);  // Tabela de monitorias e notas
-
-        // Atualizar gráfico e tabelas ao enviar o formulário
-        $('#filterForm').submit(function(event) {
-            event.preventDefault();
-
-            var analista = $('#analista').val();
-            var dataInicio = $('#data_inicio').val();
-            var dataFim = $('#data_fim').val();
-
-            var dadosFiltrados = analistasDados;
-
-            if (analista) {
-                dadosFiltrados = {[analista]: analistasDados[analista]};
-            }
-
-            if (dataInicio || dataFim) {
-                dadosFiltrados = {};  // Aplica os filtros de data se necessário
-            }
-
-            exibirTabelaMediaNotas(dadosFiltrados);
-            exibirTabela(dadosFiltrados);
-
-            if (analista && dadosFiltrados[analista]) {
-                criarOuAtualizarGrafico(dadosFiltrados[analista]);
+                }
             }
         });
-
     </script>
 </div>
 
