@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Relatório de Pontuação</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
         /* Estilos Globais */
         body {
@@ -85,6 +86,26 @@
             margin-top: 40px;
             padding: 20px;
         }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 8px 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #007bff;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -121,29 +142,28 @@
         </div>
     </form>
 
+    <div id="tabelaMediaNotas">
+        <!-- Tabela com média de notas e quantidade de monitoria por analista -->
+    </div>
+
+    <div id="tabelaAnalistas">
+        <!-- Tabela e dados gerais ou filtrados serão exibidos aqui -->
+    </div>
+
     <div class="chart-container">
         <canvas id="graficoAnalista"></canvas>
     </div>
 
     <script>
-        // Carregar dados do servidor para o JavaScript
         var analistasDados = JSON.parse('{{ media_pontuacao_por_analista | tojson | safe }}');
         var analistaSelecionado = "{{ analista_selecionado }}";
         var ctx = document.getElementById('graficoAnalista').getContext('2d');
 
         // Definir labels para os itens do gráfico
         var labels = ["Se Apresentou", "Atendeu Prontidão", "Ouviu Demanda", "Demonstrou Empatia", "Realizou Sondagem"];
-        var pontuacoes = analistasDados[analistaSelecionado] || {
-            se_apresentou: 0,
-            atendeu_prontidao: 0,
-            ouviu_demanda: 0,
-            demonstrou_empatia: 0,
-            realizou_sondagem: 0
-        };
 
-        // Função para criar ou atualizar o gráfico com novos dados
+        // Função para criar ou atualizar o gráfico
         function criarOuAtualizarGrafico(dados) {
-            // Se já existe um gráfico, atualiza-o
             if (window.grafico) {
                 window.grafico.data.datasets[0].data = [
                     dados.se_apresentou || 0,
@@ -154,7 +174,6 @@
                 ];
                 window.grafico.update();
             } else {
-                // Cria um novo gráfico se ele ainda não existe
                 window.grafico = new Chart(ctx, {
                     type: 'bar',
                     data: {
@@ -190,22 +209,70 @@
             }
         }
 
-        // Primeira renderização do gráfico
-        criarOuAtualizarGrafico(pontuacoes);
+        // Função para exibir a tabela com a média de notas e a quantidade de monitorias
+        function exibirTabelaMediaNotas(dados) {
+            var tabelaHTML = '<h3>Média de Notas e Quantidade de Monitorias por Analista</h3><table>';
+            tabelaHTML += '<thead><tr><th>Analista</th><th>Quantidade de Monitorias</th><th>Nota Média</th></tr></thead><tbody>';
+            
+            for (var analista in dados) {
+                var items = dados[analista];
+                var media = items.media || 0;
+                var quantidade = items.quantidade || 0;
 
-        // Atualizar gráfico ao enviar o formulário
-        document.getElementById('filterForm').onsubmit = function(event) {
-            event.preventDefault();
-            // Obtenha o analista selecionado e datas do formulário
-            var formData = new FormData(this);
-            var analista = formData.get('analista');
-
-            // Atualize os dados do gráfico com os novos dados do analista
-            if (analista) {
-                var dadosAtualizados = analistasDados[analista] || {};
-                criarOuAtualizarGrafico(dadosAtualizados);
+                tabelaHTML += `<tr><td>${analista}</td><td>${quantidade}</td><td>${media}</td></tr>`;
             }
-        };
+
+            tabelaHTML += '</tbody></table>';
+            document.getElementById('tabelaMediaNotas').innerHTML = tabelaHTML;
+        }
+
+        // Função para exibir a tabela de monitorias
+        function exibirTabela(dados) {
+            var tabelaHTML = '<h3>Dados de Monitorias</h3><table>';
+            tabelaHTML += '<thead><tr><th>Analista</th><th>Quantidade de Monitorias</th><th>Nota Média</th></tr></thead><tbody>';
+            
+            for (var analista in dados) {
+                var items = dados[analista];
+                var media = items.media || 0;
+                var quantidade = items.quantidade || 0;
+
+                tabelaHTML += `<tr><td>${analista}</td><td>${quantidade}</td><td>${media}</td></tr>`;
+            }
+
+            tabelaHTML += '</tbody></table>';
+            document.getElementById('tabelaAnalistas').innerHTML = tabelaHTML;
+        }
+
+        // Exibir os dados gerais ao carregar a página
+        exibirTabelaMediaNotas(analistasDados);  // Tabela de média de notas e monitorias
+        exibirTabela(analistasDados);  // Tabela de monitorias e notas
+
+        // Atualizar gráfico e tabelas ao enviar o formulário
+        $('#filterForm').submit(function(event) {
+            event.preventDefault();
+
+            var analista = $('#analista').val();
+            var dataInicio = $('#data_inicio').val();
+            var dataFim = $('#data_fim').val();
+
+            var dadosFiltrados = analistasDados;
+
+            if (analista) {
+                dadosFiltrados = {[analista]: analistasDados[analista]};
+            }
+
+            if (dataInicio || dataFim) {
+                dadosFiltrados = {};  // Aplica os filtros de data se necessário
+            }
+
+            exibirTabelaMediaNotas(dadosFiltrados);
+            exibirTabela(dadosFiltrados);
+
+            if (analista && dadosFiltrados[analista]) {
+                criarOuAtualizarGrafico(dadosFiltrados[analista]);
+            }
+        });
+
     </script>
 </div>
 
