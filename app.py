@@ -7,6 +7,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask import send_from_directory, abort, flash, redirect
 from flask import Flask, send_from_directory, abort
 from waitress import serve  # Importação do waitress
+from werkzeug.utils import secure_filename
 import os
 
 
@@ -502,5 +503,4 @@ def download_file(filename):
 
 
 if __name__ == "__main__":
-    serve(app, host='0.0.0.0', port=8080)  # Usando waitress para rodar o Flask
-    app.run(debug=True)
+    serve(app, host='0.0.0.0', port=8080)  # Usando waitress 
