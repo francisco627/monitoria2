@@ -420,9 +420,9 @@ def relatorio():
         nota_media_por_analista=nota_media_por_analista,
         pontuacoes_por_item=pontuacoes_por_item,
         valores_pontuacao=valores_pontuacao,
-        quantidade_monitorias=quantidade_monitorias
+        quantidade_monitorias=quantidade_monitorias,
+        media_pontuacao_por_analista=media_pontuacao_por_analista  # Garantir que esta variável está sendo passada
     )
-
 
 
 # Rota para registrar um novo usuário
