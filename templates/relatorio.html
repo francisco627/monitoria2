@@ -104,12 +104,29 @@
             border: 1px solid #ddd;
             border-radius: 8px;
         }
+
+        /* Botão voltar */
+        .button {
+            background-color: #007BFF;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-top: 20px;
+            display: inline-block;
+        }
+
+        .button:hover {
+            background-color: #0056b3;
+        }
     </style>
 </head>
 <body>
 
 <header>
-    <img src="{{ url_for('static', filename='static/img/logo.png') }}" alt="Logo Fivenet">
+    <img src="{{ url_for('static', filename='static/img/logo.png') }}" alt="Logo Fivenet" class="logo">
+    <h2>Relatório de Monitorias</h2>
 </header>
 
 <div class="container">
@@ -186,7 +203,8 @@
         });
     </script>
 </div>
-<a href="{{ url_for('dashboard') }}" class="button" style="background-color: #007BFF; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none; font-weight: bold;">Voltar ao Dashboard</a>
+
+<a href="{{ url_for('dashboard') }}" class="button">Voltar ao Dashboard</a>
 
 </body>
 </html>
