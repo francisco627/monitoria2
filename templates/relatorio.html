@@ -14,8 +14,8 @@
             color: #333;
         }
 
-       /* Cabeçalho */
-       header {
+        /* Cabeçalho */
+        header {
             background-color: #fff;
             color: #007BFF;
             padding: 20px;
@@ -125,7 +125,7 @@
 <body>
 
 <header>
-    <img src="{{ url_for('static', filename='static/img/logo.png') }}" alt="Logo Fivenet" class="logo">
+    <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo Fivenet" class="logo">
     <h2>Relatório de Monitorias</h2>
 </header>
 
@@ -156,21 +156,21 @@
         </div>
     </form>
 
-    {% if not analista_selecionado %}
+    {% if analista_selecionado %}
+        <h3>Analista: {{ analista_selecionado }}</h3>
+        <ul>
+            <li><strong>Média das Notas: </strong>{{ nota_media_por_analista[analista_selecionado].media }}</li>
+            <li><strong>Quantidade de Monitorias: </strong>{{ nota_media_por_analista[analista_selecionado].quantidade }}</li>
+        </ul>
+    {% else %}
         <h3>Média Geral:</h3>
         {% for analista, data in nota_media_por_analista.items() %}
             <h4>{{ analista }}:</h4>
             <p><strong>Média das Notas: </strong>{{ data.media }}</p>
             <p><strong>Quantidade de Monitorias: </strong>{{ data.quantidade }}</p>
         {% endfor %}
-    {% else %}
-        <h3>Analista: {{ analista_selecionado }}</h3>
-        <ul>
-            <li><strong>Média das Notas: </strong>{{ nota_media_por_analista[analista_selecionado].media }}</li>
-            <li><strong>Quantidade de Monitorias: </strong>{{ nota_media_por_analista[analista_selecionado].quantidade }}</li>
-        </ul>
     {% endif %}
-
+    
     <h3>Pontuação por Item:</h3>
     <table>
         <thead>
@@ -194,42 +194,48 @@
             {% endfor %}
         </tbody>
     </table>
+
+    <!-- Gráfico -->
+<div class="chart-container">
+    <canvas id="graficoAnalista"></canvas>
 </div>
 
-
-    <div class="chart-container">
-        <canvas id="graficoAnalista"></canvas>
-    </div>
-
-    <script>
-        var ctx = document.getElementById('graficoAnalista').getContext('2d');
-        var grafico = new Chart(ctx, {
-            type: 'bar',
-            data:  {
-                labels: ["Se Apresentou", "Atendeu Prontidão", "Ouviu Demanda", "Demonstrou Empatia", "Realizou Sondagem"],
-                datasets: [{
-                    label: "Pontuação Alcançada",
-                    data: [10, 15, 10, 10, 15],
-                    backgroundColor: "rgba(75, 192, 192, 0.2)",
-                    borderColor: "rgba(75, 192, 192, 1)",
-                    borderWidth: 1
-                }, {
-                    label: "Pontuação Máxima",
-                    data: [10, 15, 10, 10, 15],
-                    backgroundColor: "rgba(255, 99, 132, 0.2)",
-                    borderColor: "rgba(255, 99, 132, 1)",
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
+<script>
+    var ctx = document.getElementById('graficoAnalista').getContext('2d');
+    var grafico = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ["Se Apresentou", "Atendeu Prontidão", "Ouviu Demanda", "Demonstrou Empatia", "Realizou Sondagem"],
+            datasets: [{
+                label: "Pontuação Alcançada",
+                data: [
+                    pontuacoes_por_item['se_apresentou'],
+                    pontuacoes_por_item['atendeu_prontidao'],
+                    pontuacoes_por_item['ouviu_demanda'],
+                    pontuacoes_por_item['demonstrou_empatia'],
+                    pontuacoes_por_item['realizou_sondagem']
+                ],
+                backgroundColor: "rgba(75, 192, 192, 0.2)",
+                borderColor: "rgba(75, 192, 192, 1)",
+                borderWidth: 1
+            }, {
+                label: "Pontuação Máxima",
+                data: [10, 15, 10, 10, 15],
+                backgroundColor: "rgba(255, 99, 132, 0.2)",
+                borderColor: "rgba(255, 99, 132, 1)",
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
                 }
             }
-        });
-    </script>
+        }
+    });
+</script>
+
 </div>
 
 <a href="{{ url_for('dashboard') }}" class="button">Voltar ao Dashboard</a>

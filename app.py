@@ -347,20 +347,17 @@ def editar_usuario(id):
 def relatorio():
     analistas = Usuario.query.filter_by(grupo='analista').all()
     
-    # Inicializar dicionários de armazenamento
     media_pontuacao_por_analista = {}
     nota_media_por_analista = {}
     
-    # Dicionário para armazenar as pontuações por item
     pontuacoes_por_item = {
-        'se_apresentou': [],
-        'atendeu_prontidao': [],
-        'ouviu_demanda': [],
-        'demonstrou_empatia': [],
-        'realizou_sondagem': []
+        'se_apresentou': [20],
+        'atendeu_prontidao': [20],
+        'ouviu_demanda': [20],
+        'demonstrou_empatia': [20],
+        'realizou_sondagem': [20]
     }
 
-    # Definir os valores das penalidades
     valores_pontuacao = {
         'se_apresentou': 10,
         'atendeu_prontidao': 15,
@@ -371,7 +368,6 @@ def relatorio():
 
     itens_criticos = ['se_apresentou', 'atendeu_prontidao', 'realizou_sondagem']
 
-    # Capturar dados de formulário, se houver
     analista_selecionado = request.form.get('analista')
     data_inicio = request.form.get('data_inicio')
     data_fim = request.form.get('data_fim')
@@ -383,49 +379,38 @@ def relatorio():
         query = query.filter(Monitoria.data_monitoria.between(data_inicio, data_fim))
 
     monitorias = query.all()
-    quantidade_monitorias = len(monitorias)  # Armazenar quantidade de monitorias filtradas
+    quantidade_monitorias = len(monitorias)
 
-    # Processamento das pontuações
     for monitoria in monitorias:
         analista = monitoria.nome_analista if analista_selecionado else 'Consolidado'
         
-        # Inicializa o dicionário se não existir
         if analista not in media_pontuacao_por_analista:
             media_pontuacao_por_analista[analista] = []
         
-        # Inicializa as pontuações individuais por item para cada analista
         for item, valor in valores_pontuacao.items():
             penalidade = valor if item in monitoria.penalidades else 0
-            pontuacao_item = valor - penalidade  # Calcula a pontuação do item considerando penalidade
+            pontuacao_item = valor - penalidade
             pontuacoes_por_item[item].append(pontuacao_item)
         
-        # Calcular pontuação total para a avaliação
         pontuacao_total = sum([valor - (valor if item in monitoria.penalidades else 0) for item, valor in valores_pontuacao.items()])
         media_pontuacao_por_analista[analista].append(pontuacao_total)
 
-    # Calcula média das pontuações por analista e média geral
     for analista, pontuacoes in media_pontuacao_por_analista.items():
-        if pontuacoes:
-            media_avaliacao = sum(pontuacoes) / len(pontuacoes)
-        else:
-            media_avaliacao = 0
+        media_avaliacao = sum(pontuacoes) / len(pontuacoes) if pontuacoes else 0
         nota_media_por_analista[analista] = {
             'media': media_avaliacao,
             'quantidade': len(pontuacoes)
         }
 
-    # Para média dos itens por data, calculando também se não houver filtro de analista
     media_itens_por_data = {}
     if not analista_selecionado and data_inicio and data_fim:
         for item, valores in pontuacoes_por_item.items():
             media_itens_por_data[item] = sum(valores) / len(valores) if len(valores) > 0 else 0
 
-    # Calculando a média dos itens para um analista específico, caso ele seja selecionado
     media_itens_por_analista = {}
     if analista_selecionado:
         for item, valores in pontuacoes_por_item.items():
-            # Filtrando os valores pelas monitorias do analista selecionado
-            valores_filtrados = [v for m in monitorias if m.nome_analista == analista_selecionado for v in [v if item in m.penalidades else valores_pontuacao[item]]]
+            valores_filtrados = [valor for m in monitorias if m.nome_analista == analista_selecionado for item_key, valor in valores_pontuacao.items() if item_key == item and item_key not in m.penalidades]
             media_itens_por_analista[item] = sum(valores_filtrados) / len(valores_filtrados) if len(valores_filtrados) > 0 else 0
 
     return render_template(
@@ -436,9 +421,10 @@ def relatorio():
         valores_pontuacao=valores_pontuacao,
         quantidade_monitorias=quantidade_monitorias,
         media_pontuacao_por_analista=media_pontuacao_por_analista,
-        media_itens_por_data=media_itens_por_data,  # Passa a média dos itens por data
-        media_itens_por_analista=media_itens_por_analista  # Passa a média dos itens por analista
+        media_itens_por_data=media_itens_por_data,
+        media_itens_por_analista=media_itens_por_analista
     )
+
 
 
 
