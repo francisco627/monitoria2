@@ -429,27 +429,28 @@ def relatorio():
 
 @app.route('/relatorio_analista', methods=['GET', 'POST'])
 def relatorio_analista():
-    analistas = analistas.query.all()  # Busca todos os analistas para o filtro
+    analistas = Monitoria.query.with_entities(Monitoria.nome_analista).distinct()  # Busca todos os analistas para o filtro
     monitorias = []
 
     if request.method == 'POST':
-        analista_id = request.form.get('analista')
+        analista_nome = request.form.get('analista')
         data_inicio = request.form.get('data_inicio')
         data_fim = request.form.get('data_fim')
 
         # Filtragem das monitorias
         query = Monitoria.query
-        if analista_id:
-            query = query.filter_by(analista_id=analista_id)
+        if analista_nome:
+            query = query.filter(Monitoria.nome_analista == analista_nome)
         if data_inicio:
-            query = query.filter(Monitoria.data >= datetime.strptime(data_inicio, '%Y-%m-%d'))
+            query = query.filter(Monitoria.data_monitoria >= datetime.strptime(data_inicio, '%Y-%m-%d'))
         if data_fim:
-            query = query.filter(Monitoria.data <= datetime.strptime(data_fim, '%Y-%m-%d'))
+            query = query.filter(Monitoria.data_monitoria <= datetime.strptime(data_fim, '%Y-%m-%d'))
 
         monitorias = query.all()
 
-    # Passa os dados para o template
+    # Código para processar e renderizar a página de relatório do analista
     return render_template('relatorio_analista.html', analistas=analistas, monitorias=monitorias)
+
 
 # Rota para registrar um novo usuário
 @app.route('/registrar_usuario', methods=['GET', 'POST'])
