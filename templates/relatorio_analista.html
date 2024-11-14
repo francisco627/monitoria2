@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório por Analista</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7fc;
+            margin: 0;
+            padding: 0;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-top: 30px;
+        }
+
+        .container {
+            width: 80%;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-width: 500px;
+            margin: 0 auto 30px;
+        }
+
+        label {
+            font-weight: bold;
+            color: #555;
+        }
+
+        select, input[type="date"], button {
+            padding: 10px;
+            font-size: 14px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            background-color: #007BFF;
+            color: white;
+            cursor: pointer;
+            border: none;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 30px;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 12px;
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f1f1f1;
+            color: #333;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tbody tr:hover {
+            background-color: #e9e9e9;
+        }
+
+        .button {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .button:hover {
+            background-color: #218838;
+        }
+
+        .no-result {
+            text-align: center;
+            color: #777;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Relatório de Monitorias por Analista</h2>
+
+        <!-- Formulário de filtro -->
+        <form method="POST">
+            <label for="analista">Analista:</label>
+            <select name="analista" id="analista">
+                <option value="">Selecione</option>
+                {% for analista in analistas %}
+                    <option value="{{ analista.id }}">{{ analista.nome_analista }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="data_inicio">Data Início:</label>
+            <input type="date" name="data_inicio" id="data_inicio">
+
+            <label for="data_fim">Data Fim:</label>
+            <input type="date" name="data_fim" id="data_fim">
+
+            <button type="submit">Filtrar</button>
+        </form>
+
+        <!-- Tabela de monitorias -->
+        {% if monitorias %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Analista</th>
+                        <th>Nota Geral</th>
+                        <th>Item 1</th>
+                        <th>Item 2</th>
+                        <!-- Adicione mais colunas para cada item da avaliação conforme necessário -->
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for monitoria in monitorias %}
+                        <tr>
+                            <td>{{ monitoria.data.strftime('%d/%m/%Y') }}</td>
+                            <td>{{ monitoria.analista.nome_analista }}</td>
+                            <td>{{ monitoria.nota_geral }}</td>
+                            <td>{{ monitoria.item_1 }}</td>
+                            <td>{{ monitoria.item_2 }}</td>
+                            <!-- Adicione mais células para os itens de avaliação -->
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="no-result">Nenhuma monitoria encontrada.</p>
+        {% endif %}
+
+        <a href="{{ url_for('dashboard') }}" class="button">Voltar ao Dashboard</a>
+    </div>
+
+</body>
+</html>

@@ -425,8 +425,31 @@ def relatorio():
         media_itens_por_analista=media_itens_por_analista
     )
 
+#Relatorio Analistas
 
+@app.route('/relatorio_analista', methods=['GET', 'POST'])
+def relatorio_analista():
+    analistas = analistas.query.all()  # Busca todos os analistas para o filtro
+    monitorias = []
 
+    if request.method == 'POST':
+        analista_id = request.form.get('analista')
+        data_inicio = request.form.get('data_inicio')
+        data_fim = request.form.get('data_fim')
+
+        # Filtragem das monitorias
+        query = Monitoria.query
+        if analista_id:
+            query = query.filter_by(analista_id=analista_id)
+        if data_inicio:
+            query = query.filter(Monitoria.data >= datetime.strptime(data_inicio, '%Y-%m-%d'))
+        if data_fim:
+            query = query.filter(Monitoria.data <= datetime.strptime(data_fim, '%Y-%m-%d'))
+
+        monitorias = query.all()
+
+    # Passa os dados para o template
+    return render_template('relatorio_analista.html', analistas=analistas, monitorias=monitorias)
 
 # Rota para registrar um novo usuário
 @app.route('/registrar_usuario', methods=['GET', 'POST'])
