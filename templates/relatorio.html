@@ -136,19 +136,19 @@
             <select name="analista" id="analista">
                 <option value="">Selecione</option>
                 {% for analista in analistas %}
-                    <option value="{{ analista.matricula }}">{{ analista.nome }}</option>
+                    <option value="{{ analista.matricula }}" {% if analista.matricula == request.form.get('analista') %}selected{% endif %}>{{ analista.nome }}</option>
                 {% endfor %}
             </select>
         </div>
 
         <div class="form-group">
             <label for="data_inicio">Data Início:</label>
-            <input type="date" name="data_inicio" id="data_inicio">
+            <input type="date" name="data_inicio" id="data_inicio" value="{{ request.form.get('data_inicio') }}">
         </div>
 
         <div class="form-group">
             <label for="data_fim">Data Fim:</label>
-            <input type="date" name="data_fim" id="data_fim">
+            <input type="date" name="data_fim" id="data_fim" value="{{ request.form.get('data_fim') }}">
         </div>
 
         <div class="form-group">
@@ -156,18 +156,46 @@
         </div>
     </form>
 
-    {% for analista, items in media_pontuacao_por_analista.items() %}
-        <h3>Analista: {{ analista }}</h3>
+    {% if not analista_selecionado %}
+        <h3>Média Geral:</h3>
+        {% for analista, data in nota_media_por_analista.items() %}
+            <h4>{{ analista }}:</h4>
+            <p><strong>Média das Notas: </strong>{{ data.media }}</p>
+            <p><strong>Quantidade de Monitorias: </strong>{{ data.quantidade }}</p>
+        {% endfor %}
+    {% else %}
+        <h3>Analista: {{ analista_selecionado }}</h3>
         <ul>
-            <li>Se Apresentou: {{ items.se_apresentou }}</li>
-            <li>Atendeu Prontidão: {{ items.atendeu_prontidao }}</li>
-            <li>Ouviu Demanda: {{ items.ouviu_demanda }}</li>
-            <li>Demonstrou Empatia: {{ items.demonstrou_empatia }}</li>
-            <li>Realizou Sondagem: {{ items.realizou_sondagem }}</li>
+            <li><strong>Média das Notas: </strong>{{ nota_media_por_analista[analista_selecionado].media }}</li>
+            <li><strong>Quantidade de Monitorias: </strong>{{ nota_media_por_analista[analista_selecionado].quantidade }}</li>
         </ul>
-        <p><strong>Média das Notas: </strong>{{ nota_media_por_analista[analista].media }}</p>
-        <p><strong>Quantidade de Monitorias: </strong>{{ nota_media_por_analista[analista].quantidade }}</p>
-    {% endfor %}
+    {% endif %}
+
+    <h3>Pontuação por Item:</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Pontuação Média</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item, pontuacoes in pontuacoes_por_item.items() %}
+                <tr>
+                    <td>{{ item }}</td>
+                    <td>
+                        {% if not analista_selecionado %}
+                            {{ media_itens_por_data[item] if media_itens_por_data[item] else 'N/A' }}
+                        {% else %}
+                            {{ pontuacoes|length > 0 and sum(pontuacoes)/pontuacoes|length or 'N/A' }}
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
 
     <div class="chart-container">
         <canvas id="graficoAnalista"></canvas>

@@ -392,18 +392,18 @@ def relatorio():
         # Inicializa o dicionário se não existir
         if analista not in media_pontuacao_por_analista:
             media_pontuacao_por_analista[analista] = []
-
+        
         # Inicializa as pontuações individuais por item para cada analista
         for item, valor in valores_pontuacao.items():
             penalidade = valor if item in monitoria.penalidades else 0
             pontuacao_item = valor - penalidade  # Calcula a pontuação do item considerando penalidade
             pontuacoes_por_item[item].append(pontuacao_item)
-
+        
         # Calcular pontuação total para a avaliação
         pontuacao_total = sum([valor - (valor if item in monitoria.penalidades else 0) for item, valor in valores_pontuacao.items()])
         media_pontuacao_por_analista[analista].append(pontuacao_total)
 
-    # Calcula média das pontuações
+    # Calcula média das pontuações por analista e média geral
     for analista, pontuacoes in media_pontuacao_por_analista.items():
         if pontuacoes:
             media_avaliacao = sum(pontuacoes) / len(pontuacoes)
@@ -414,6 +414,12 @@ def relatorio():
             'quantidade': len(pontuacoes)
         }
 
+    # Para média dos itens por data, calculando também se não houver filtro de analista
+    media_itens_por_data = {}
+    if not analista_selecionado and data_inicio and data_fim:
+        for item, valores in pontuacoes_por_item.items():
+            media_itens_por_data[item] = sum(valores) / len(valores) if len(valores) > 0 else 0
+
     return render_template(
         'relatorio.html', 
         analistas=analistas, 
@@ -421,7 +427,8 @@ def relatorio():
         pontuacoes_por_item=pontuacoes_por_item,
         valores_pontuacao=valores_pontuacao,
         quantidade_monitorias=quantidade_monitorias,
-        media_pontuacao_por_analista=media_pontuacao_por_analista  # Garantir que esta variável está sendo passada
+        media_pontuacao_por_analista=media_pontuacao_por_analista,
+        media_itens_por_data=media_itens_por_data  # Passa a média dos itens por data
     )
 
 
