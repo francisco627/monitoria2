@@ -366,8 +366,6 @@ def relatorio():
         'realizou_sondagem': 15
     }
 
-    itens_criticos = ['se_apresentou', 'atendeu_prontidao', 'realizou_sondagem']
-
     analista_selecionado = request.form.get('analista')
     data_inicio = request.form.get('data_inicio')
     data_fim = request.form.get('data_fim')
@@ -387,12 +385,14 @@ def relatorio():
         if analista not in media_pontuacao_por_analista:
             media_pontuacao_por_analista[analista] = []
         
+        pontuacao_total = 0
+        
         for item, valor in valores_pontuacao.items():
             penalidade = valor if item in monitoria.penalidades else 0
             pontuacao_item = valor - penalidade
             pontuacoes_por_item[item].append(pontuacao_item)
+            pontuacao_total += pontuacao_item
         
-        pontuacao_total = sum([valor - (valor if item in monitoria.penalidades else 0) for item, valor in valores_pontuacao.items()])
         media_pontuacao_por_analista[analista].append(pontuacao_total)
 
     for analista, pontuacoes in media_pontuacao_por_analista.items():

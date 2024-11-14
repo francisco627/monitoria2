@@ -16,33 +16,32 @@
 
         /* Cabeçalho */
         header {
-            background-color: #fff;
-            color: #007BFF;
+            background-color: #007BFF;
+            color: #fff;
             padding: 20px;
             text-align: center;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-bottom: 2px solid #007BFF;
+            border-bottom: 3px solid #0056b3;
         }
 
-        header .logo {
-            max-width: 80px;
-            margin-right: 10px;
+        header img.logo {
+            max-width: 60px;
+            margin-right: 15px;
         }
 
         header h2 {
+            display: inline-block;
             margin: 0;
+            font-size: 1.5em;
         }
 
         /* Conteúdo principal */
         .container {
             padding: 20px;
-            max-width: 800px;
-            margin: 20px auto;
+            max-width: 900px;
+            margin: 30px auto;
             background-color: #fff;
             border-radius: 8px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0px 0px 12px rgba(0, 0, 0, 0.1);
         }
 
         /* Formulário */
@@ -54,15 +53,16 @@
             display: block;
             font-weight: bold;
             color: #007BFF;
+            margin-bottom: 5px;
         }
 
         input[type="date"],
         select {
             width: 100%;
-            padding: 8px;
-            margin-top: 5px;
+            padding: 10px;
             border: 1px solid #ccc;
             border-radius: 4px;
+            font-size: 1em;
         }
 
         button {
@@ -74,6 +74,7 @@
             cursor: pointer;
             font-weight: bold;
             transition: background-color 0.3s;
+            font-size: 1em;
         }
 
         button:hover {
@@ -81,10 +82,11 @@
         }
 
         /* Informações do analista */
-        h3 {
+        h3, h4 {
             color: #007BFF;
-            font-size: 1.2em;
+            font-size: 1.3em;
             margin-top: 20px;
+            font-weight: bold;
         }
 
         ul {
@@ -94,6 +96,28 @@
 
         ul li {
             margin-bottom: 8px;
+        }
+
+        /* Tabela de Pontuações */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #007BFF;
+            color: #fff;
+        }
+
+        td {
+            background-color: #f9f9f9;
         }
 
         /* Gráfico */
@@ -115,6 +139,7 @@
             font-weight: bold;
             margin-top: 20px;
             display: inline-block;
+            transition: background-color 0.3s;
         }
 
         .button:hover {
@@ -125,7 +150,7 @@
 <body>
 
 <header>
-    <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo Fivenet" class="logo">
+    <img src="{{ url_for('static', filename='static/img/logo.png') }}" alt="Logo Fivenet" class="logo">
     <h2>Relatório de Monitorias</h2>
 </header>
 
@@ -159,18 +184,18 @@
     {% if analista_selecionado %}
         <h3>Analista: {{ analista_selecionado }}</h3>
         <ul>
-            <li><strong>Média das Notas: </strong>{{ nota_media_por_analista[analista_selecionado].media }}</li>
+            <li><strong>Média das Notas: </strong>{{ nota_media_por_analista[analista_selecionado].media | round(2) }}</li>
             <li><strong>Quantidade de Monitorias: </strong>{{ nota_media_por_analista[analista_selecionado].quantidade }}</li>
         </ul>
     {% else %}
         <h3>Média Geral:</h3>
         {% for analista, data in nota_media_por_analista.items() %}
             <h4>{{ analista }}:</h4>
-            <p><strong>Média das Notas: </strong>{{ data.media }}</p>
+            <p><strong>Média das Notas: </strong>{{ data.media | round(2) }}</p>
             <p><strong>Quantidade de Monitorias: </strong>{{ data.quantidade }}</p>
         {% endfor %}
     {% endif %}
-    
+
     <h3>Pontuação por Item:</h3>
     <table>
         <thead>
@@ -185,58 +210,48 @@
                     <td>{{ item }}</td>
                     <td>
                         {% if not analista_selecionado %}
-                            {{ media_itens_por_data[item] if media_itens_por_data[item] else 'N/A' }}
+                            {{ media_itens_por_data[item] | round(2) if media_itens_por_data[item] else 'N/A' }}
                         {% else %}
-                            {{ pontuacoes|length > 0 and sum(pontuacoes)/pontuacoes|length or 'N/A' }}
+                            {{ media_itens_por_analista[item] | round(2) if item in media_itens_por_analista else 'N/A' }}
                         {% endif %}
                     </td>
                 </tr>
             {% endfor %}
         </tbody>
     </table>
+</div>
 
-    <!-- Gráfico -->
+<!-- Gráfico -->
 <div class="chart-container">
     <canvas id="graficoAnalista"></canvas>
 </div>
 
 <script>
-    var ctx = document.getElementById('graficoAnalista').getContext('2d');
-    var grafico = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: ["Se Apresentou", "Atendeu Prontidão", "Ouviu Demanda", "Demonstrou Empatia", "Realizou Sondagem"],
-            datasets: [{
-                label: "Pontuação Alcançada",
-                data: [
-                    pontuacoes_por_item['se_apresentou'],
-                    pontuacoes_por_item['atendeu_prontidao'],
-                    pontuacoes_por_item['ouviu_demanda'],
-                    pontuacoes_por_item['demonstrou_empatia'],
-                    pontuacoes_por_item['realizou_sondagem']
-                ],
-                backgroundColor: "rgba(75, 192, 192, 0.2)",
-                borderColor: "rgba(75, 192, 192, 1)",
-                borderWidth: 1
-            }, {
-                label: "Pontuação Máxima",
-                data: [10, 15, 10, 10, 15],
-                backgroundColor: "rgba(255, 99, 132, 0.2)",
-                borderColor: "rgba(255, 99, 132, 1)",
-                borderWidth: 1
-            }]
-        },
-        options: {
-            scales: {
-                y: {
-                    beginAtZero: true
+    document.addEventListener('DOMContentLoaded', function() {
+        var ctx = document.getElementById('graficoAnalista').getContext('2d');
+        var chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ["Se Apresentou", "Atendeu Prontidão", "Ouviu Demanda", "Demonstrou Empatia", "Realizou Sondagem"],
+                datasets: [{
+                    label: "Pontuação Alcançada",
+                    data: [pontuacoes['se_apresentou'], pontuacoes['atendeu_prontidao'], pontuacoes['ouviu_demanda'], pontuacoes['demonstrou_empatia'], pontuacoes['realizou_sondagem']],
+                    backgroundColor: '#007BFF',
+                    borderColor: '#0056b3',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
                 }
             }
-        }
+        });
     });
 </script>
-
-</div>
 
 <a href="{{ url_for('dashboard') }}" class="button">Voltar ao Dashboard</a>
 
