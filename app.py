@@ -420,6 +420,14 @@ def relatorio():
         for item, valores in pontuacoes_por_item.items():
             media_itens_por_data[item] = sum(valores) / len(valores) if len(valores) > 0 else 0
 
+    # Calculando a média dos itens para um analista específico, caso ele seja selecionado
+    media_itens_por_analista = {}
+    if analista_selecionado:
+        for item, valores in pontuacoes_por_item.items():
+            # Filtrando os valores pelas monitorias do analista selecionado
+            valores_filtrados = [v for m in monitorias if m.nome_analista == analista_selecionado for v in [v if item in m.penalidades else valores_pontuacao[item]]]
+            media_itens_por_analista[item] = sum(valores_filtrados) / len(valores_filtrados) if len(valores_filtrados) > 0 else 0
+
     return render_template(
         'relatorio.html', 
         analistas=analistas, 
@@ -428,8 +436,10 @@ def relatorio():
         valores_pontuacao=valores_pontuacao,
         quantidade_monitorias=quantidade_monitorias,
         media_pontuacao_por_analista=media_pontuacao_por_analista,
-        media_itens_por_data=media_itens_por_data  # Passa a média dos itens por data
+        media_itens_por_data=media_itens_por_data,  # Passa a média dos itens por data
+        media_itens_por_analista=media_itens_por_analista  # Passa a média dos itens por analista
     )
+
 
 
 # Rota para registrar um novo usuário
