@@ -1,16 +1,11 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash
-from flask import send_from_directory
+from flask import Flask, render_template, request, redirect, url_for, session, flash, send_from_directory, abort
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask import send_from_directory, abort, flash, redirect
-from flask import Flask, send_from_directory, abort
+from werkzeug.utils import secure_filename
 from waitress import serve  # Importação do waitress
-from werkzeug.utils import *
 import os
-
-
 
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'
@@ -24,18 +19,21 @@ migrate = Migrate(app, db)  # Inicialize o Flask-Migrate com a aplicação e o b
 
 # Modelo de usuário para o banco de dados
 class Usuario(db.Model):
-   class Usuario(db.Model):
-        id = db.Column(db.Integer, primary_key=True)
-        email = db.Column(db.String(100), unique=True, nullable=False)
-        senha = db.Column(db.String(200), nullable=False)
-        nome = db.Column(db.String(100), nullable=False)
-        grupo = db.Column(db.String(20), nullable=False, default='analista')
-        matricula = db.Column(db.String(100), unique=True, nullable=True)  # Novo campo de matrícula
-        monitorias = db.relationship('Monitoria', backref='usuario', lazy=True)
+    __tablename__ = 'usuario'
 
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(100), unique=True, nullable=False)
+    senha = db.Column(db.String(200), nullable=False)
+    nome = db.Column(db.String(100), nullable=False)
+    grupo = db.Column(db.String(20), nullable=False, default='analista')
+    matricula = db.Column(db.String(100), unique=True, nullable=True)  # Novo campo de matrícula
+    monitorias = db.relationship('Monitoria', backref='usuario', lazy=True)
+
+
+# Modelo de monitoria para o banco de dados
 class Monitoria(db.Model):
-   # Modelo de monitoria para o banco de dados
- class Monitoria(db.Model):
+    __tablename__ = 'monitoria'
+
     id = db.Column(db.Integer, primary_key=True)
     link_incluso = db.Column(db.String(255), nullable=True)
     nome_analista = db.Column(db.String(100), nullable=False)
