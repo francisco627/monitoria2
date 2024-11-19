@@ -120,6 +120,7 @@ def monitoria_form():
         # Obter os links fornecidos pelo administrador
         arquivo_pdf_link = request.form.get('arquivo_pdf')
         gravacao_link = request.form.get('gravacao')
+        link_incluso = request.form.get('link_incluso')  # Obtenha o campo link_incluso do formulário
 
         total_points = 100
         penalties = {
@@ -165,7 +166,7 @@ def monitoria_form():
             nota=total_points,
             status='pendente',
             descritivo=descritivo,
-
+            link_incluso=link_incluso,  # Salve o valor do link_incluso no banco de dados
             penalidades=', '.join(penalidades_aplicadas),
             data_monitoria=datetime.now(),
             usuario_id=session['usuario_id']
@@ -177,6 +178,7 @@ def monitoria_form():
         return redirect(url_for('monitoria_sucesso'))
     
     return render_template('monitoria_form.html')
+
 
 # Rota de sucesso após submeter monitoria
 @app.route('/monitoria_sucesso', methods=['GET'])

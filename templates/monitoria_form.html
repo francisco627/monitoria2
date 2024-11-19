@@ -237,7 +237,7 @@
 <input type="text" id="nome_analista" name="nome_analista" required />
 
 
-       
+    <form method="POST" action="/salvar_monitoria">
 
         <label for="id_atendimento">ID de Atendimento:</label>
         <input type="text" name="id_atendimento" required />
@@ -245,9 +245,9 @@
         <label for="descritivo">Descritivo do Contato:</label>
         <textarea name="descritivo" rows="4" required></textarea>
 
-        <label for="links">Links de Arquivos (Gravação e PDF):</label>
-        <input type="url" id="links" name="links" placeholder="Cole os links gerados no Terabox, separados por vírgula" required><br>
         
+        <label for="link_incluso">Link:</label>
+        <input type="text" name="link_incluso" id="link_incluso" class="form-control">
 
     <button type="submit">Salvar Monitoria</button>
 
