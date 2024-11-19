@@ -113,25 +113,9 @@ def logout():
 @app.route('/monitoria', methods=['GET', 'POST'])
 def monitoria_form():
     if request.method == 'POST':
-        arquivo_pdf = request.files.get('arquivo_pdf')
-        gravacao = request.files.get('gravacao')
-
-        # Salvar arquivos se existirem na pasta 'upload'
-        arquivo_pdf_path = None
-        if arquivo_pdf:
-            try:
-                arquivo_pdf.save(os.path.join(UPLOAD_FOLDER, arquivo_pdf.filename))
-                arquivo_pdf_path = arquivo_pdf.filename
-            except Exception as e:
-                flash(f'Erro ao salvar o arquivo PDF: {str(e)}', 'error')
-
-        gravacao_path = None
-        if gravacao:
-            try:
-                gravacao.save(os.path.join(UPLOAD_FOLDER, gravacao.filename))
-                gravacao_path = gravacao.filename
-            except Exception as e:
-                flash(f'Erro ao salvar a gravação: {str(e)}', 'error')
+        # Obter os links fornecidos pelo administrador
+        arquivo_pdf_link = request.form.get('arquivo_pdf')
+        gravacao_link = request.form.get('gravacao')
 
         total_points = 100
         penalties = {
@@ -177,8 +161,6 @@ def monitoria_form():
             nota=total_points,
             status='pendente',
             descritivo=descritivo,
-            arquivo_pdf=arquivo_pdf_path,
-            gravacao=gravacao_path,
             penalidades=', '.join(penalidades_aplicadas),
             data_monitoria=datetime.now(),
             usuario_id=session['usuario_id']
