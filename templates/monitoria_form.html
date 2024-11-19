@@ -245,6 +245,14 @@
         <label for="descritivo">Descritivo do Contato:</label>
         <textarea name="descritivo" rows="4" required></textarea>
 
+        <label for="arquivo_pdf">Link do Arquivo PDF (Terabox):</label>
+    <input type="url" id="arquivo_pdf" name="arquivo_pdf" placeholder="Cole o link gerado no Terabox" required><br>
+
+    <label for="gravacao">Link da Gravação (Terabox):</label>
+    <input type="url" id="gravacao" name="gravacao" placeholder="Cole o link gerado no Terabox" required><br>
+
+    <button type="submit">Salvar Monitoria</button>
+
         <!-- Perguntas de Penalidade -->
         <h2>Avaliação do Atendimento</h2>
 
@@ -311,15 +319,6 @@
             <input type="radio" name="seguiu_procedimentos" value="Não"> Não
         </div>
 
-        <div class="file-upload">
-            <label for="arquivo_pdf">Arquivo PDF:</label>
-            <input type="file" name="arquivo_pdf" accept="application/pdf">
-        </div>
-
-        <div class="file-upload">
-            <label for="gravacao">Gravação:</label>
-            <input type="file" name="gravacao" accept="audio/*">
-        </div>
 <!-- Botão de Voltar ao Dashboard -->
 <a href="{{ url_for('dashboard') }}" class="back-button">Voltar ao Dashboard</a>
         <button type="submit">Enviar</button>
