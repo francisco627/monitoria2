@@ -34,10 +34,15 @@
         }
 
         .logo {
-            max-width: 100px; /* Ajuste o tamanho do logo conforme desejado */
+            max-width: 120px; /* Ajuste do tamanho do logo */
             height: auto;
             display: block;
             margin: 0 auto 20px;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .logo:hover {
+            transform: scale(1.1); /* Efeito de zoom no logo */
         }
 
         h2 {
@@ -94,6 +99,10 @@
             border-left: 5px solid #003366;
         }
 
+        .info-card p {
+            font-size: 16px; /* Tamanho de fonte ajustado */
+        }
+
         @media (max-width: 500px) {
             .container {
                 padding: 10px;
@@ -107,16 +116,19 @@
             h2 {
                 font-size: 22px;
             }
+
+            .logo {
+                max-width: 90px;
+            }
         }
     </style>
-
 </head>
 <body>
     <header>
         <h1>Detalhes da Monitoria</h1>
     </header>
     <main class="container">
-        <img src="{{ url_for('static', filename='static/img/logo.png') }}" alt="Logo Fivenet"> <!-- Logo adicionado -->
+        <img src="{{ url_for('static', filename='static/img/logo.png') }}" alt="Logo Fivenet" class="logo">
         <h2>Monitoria: {{ monitoria.nome_analista }}</h2>
         
         <div class="info-card">
