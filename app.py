@@ -47,8 +47,6 @@ class Monitoria(db.Model):
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False)
     assinatura = db.Column(db.String(100))  # Adiciona a coluna assinatura
     data_assinatura = db.Column(db.DateTime)  # Adiciona a coluna para data da assinatura
-    link_caixa_compartilhada = db.Column(db.String(255), nullable=True)
-
 
  # Defina o caminho absoluto da pasta de upload (alterado conforme seu sistema)
 UPLOAD_FOLDER = r'C:\Users\User\Desktop\Quality Monitory\upload'
@@ -163,6 +161,7 @@ def monitoria_form():
             nota=total_points,
             status='pendente',
             descritivo=descritivo,
+
             penalidades=', '.join(penalidades_aplicadas),
             data_monitoria=datetime.now(),
             usuario_id=session['usuario_id']
