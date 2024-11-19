@@ -7,7 +7,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask import send_from_directory, abort, flash, redirect
 from flask import Flask, send_from_directory, abort
 from waitress import serve  # Importação do waitress
-from werkzeug.utils import secure_filename
+from werkzeug.utils import *
 import os
 
 
@@ -24,16 +24,20 @@ migrate = Migrate(app, db)  # Inicialize o Flask-Migrate com a aplicação e o b
 
 # Modelo de usuário para o banco de dados
 class Usuario(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(100), unique=True, nullable=False)
-    senha = db.Column(db.String(200), nullable=False)
-    nome = db.Column(db.String(100), nullable=False)
-    grupo = db.Column(db.String(20), nullable=False, default='analista')
-    matricula = db.Column(db.String(100), unique=True, nullable=True)  # Novo campo de matrícula
-    monitorias = db.relationship('Monitoria', backref='usuario', lazy=True)
+   class Usuario(db.Model):
+        id = db.Column(db.Integer, primary_key=True)
+        email = db.Column(db.String(100), unique=True, nullable=False)
+        senha = db.Column(db.String(200), nullable=False)
+        nome = db.Column(db.String(100), nullable=False)
+        grupo = db.Column(db.String(20), nullable=False, default='analista')
+        matricula = db.Column(db.String(100), unique=True, nullable=True)  # Novo campo de matrícula
+        monitorias = db.relationship('Monitoria', backref='usuario', lazy=True)
 
 class Monitoria(db.Model):
+   # Modelo de monitoria para o banco de dados
+ class Monitoria(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    link_incluso = db.Column(db.String(255), nullable=True)
     nome_analista = db.Column(db.String(100), nullable=False)
     matricula = db.Column(db.String(100), nullable=False)
     id_atendimento = db.Column(db.String(100), nullable=False)
@@ -47,6 +51,8 @@ class Monitoria(db.Model):
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False)
     assinatura = db.Column(db.String(100))  # Adiciona a coluna assinatura
     data_assinatura = db.Column(db.DateTime)  # Adiciona a coluna para data da assinatura
+
+
 
  # Defina o caminho absoluto da pasta de upload (alterado conforme seu sistema)
 UPLOAD_FOLDER = r'C:\Users\User\Desktop\Quality Monitory\upload'
