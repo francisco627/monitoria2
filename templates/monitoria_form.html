@@ -212,7 +212,29 @@
             const agora = new Date();
             inputHorario.value = agora.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); // Formato HH:MM
         }
+       // Função para atualizar os campos obrigatórios com base na seleção do canal
+       function atualizarCamposObrigatorios() {
+            const canalAtendimento = document.getElementById("canal_atendimento").value;
+            const linkPdf = document.getElementById("link_pdf");
+            const linkGravacao = document.getElementById("link_gravacao");
 
+            if (canalAtendimento === "Opa") {
+                linkPdf.required = true;
+                linkGravacao.required = false;
+            } else if (canalAtendimento === "Telefone") {
+                linkPdf.required = false;
+                linkGravacao.required = true;
+            } else {
+                linkPdf.required = false;
+                linkGravacao.required = false;
+            }
+        }
+
+        // Chama a função para configurar os campos ao carregar a página
+        window.onload = atualizarCamposObrigatorios;
+    </script>
+</head>
+<body>
         
         </script>
 </head>
@@ -245,12 +267,9 @@
         <label for="descritivo">Descritivo do Contato:</label>
         <textarea name="descritivo" rows="4" required></textarea>
 
-        <label for="arquivo_pdf">Link do Arquivo PDF (Terabox):</label>
-    <input type="url" id="arquivo_pdf" name="arquivo_pdf" placeholder="Cole o link gerado no Terabox" required><br>
-
-    <label for="gravacao">Link da Gravação (Terabox):</label>
-    <input type="url" id="gravacao" name="gravacao" placeholder="Cole o link gerado no Terabox" required><br>
-
+        <label for="link_caixa_compartilhada">Link da Caixa Compartilhada:</label>
+        <input type="text" name="link_caixa_compartilhada" id="link_caixa_compartilhada" value="{{ monitoria.link_caixa_compartilhada }}" placeholder="Insira o link da caixa compartilhada">
+        
     <button type="submit">Salvar Monitoria</button>
 
         <!-- Perguntas de Penalidade -->

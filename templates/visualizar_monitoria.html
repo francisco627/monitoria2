@@ -131,21 +131,22 @@
         </div>
 
       <!-- Link para o download do arquivo -->
-{% if monitoria.arquivo_pdf %}
-<p><strong>Arquivo PDF:</strong>
-    <a href="{{ url_for('download_file', filename=monitoria.arquivo_pdf) }}" download>Baixar PDF</a>
-</p>
-{% else %}
-<p><strong>Arquivo PDF:</strong> Nenhum arquivo PDF incluído</p>
-{% endif %}
-
-{% if monitoria.gravacao %}
-<p><strong>Gravação:</strong>
-    <a href="{{ url_for('download_file', filename=monitoria.gravacao) }}" download>Baixar Gravação</a>
-</p>
-{% else %}
-<p><strong>Gravação:</strong> Nenhuma gravação incluída</p>
-{% endif %}
+      {% if monitoria.arquivo_pdf %}
+      <p><strong>Arquivo PDF:</strong>
+          <a href="{{ monitoria.arquivo_pdf }}" target="_blank" rel="noopener noreferrer">Acessar PDF</a>
+      </p>
+      {% else %}
+      <p><strong>Arquivo PDF:</strong> Nenhum arquivo PDF incluído</p>
+      {% endif %}
+      
+      {% if monitoria.gravacao %}
+      <p><strong>Gravação:</strong>
+          <a href="{{ monitoria.gravacao }}" target="_blank" rel="noopener noreferrer">Acessar Gravação</a>
+      </p>
+      {% else %}
+      <p><strong>Gravação:</strong> Nenhuma gravação incluída</p>
+      {% endif %}
+      
 
 
         <a href="{{ url_for('dashboard') }}" class="button">Voltar ao Dashboard</a>
