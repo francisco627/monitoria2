@@ -4,16 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Relatório de Monitoria</title>
-    <!-- Aqui você pode adicionar links para CSS ou bibliotecas como Bootstrap -->
 </head>
 <body>
-    <h1>Relatório de Monitoria por Analista</h1>
+    <h1>Relatório de Monitoria - Analista</h1>
 
-    <!-- Formulário de filtros -->
-    <form method="POST" action="{{ url_for('relatorio_analista') }}">
+    <form method="POST">
         <label for="analista">Analista:</label>
         <select name="analista" id="analista">
-            <option value="">Selecione um analista</option>
+            <option value="">Selecione</option>
             {% for analista in analistas %}
                 <option value="{{ analista.nome_analista }}">{{ analista.nome_analista }}</option>
             {% endfor %}
@@ -28,54 +26,60 @@
         <button type="submit">Filtrar</button>
     </form>
 
-    <hr>
-
-    <!-- Exibindo a média geral -->
-    <h2>Média Geral: {{ media_geral }}</h2>
-
-    <!-- Exibindo as notas máximas e alcançadas por item -->
-    <h3>Notas Máximas por Item:</h3>
-    <table>
-        <thead>
-            <tr>
-                <th>Item</th>
-                <th>Nota Máxima</th>
-                <th>Nota Alcançada</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item, nota_maxima in notas_maximas.items() %}
+    <h2>Resultados</h2>
+    {% if resultados %}
+        <table border="1">
+            <thead>
                 <tr>
-                    <td>{{ item }}</td>
-                    <td>{{ nota_maxima }}</td>
-                    <td>{{ notas_media_por_item[item] }}</td> <!-- Média das notas alcançadas -->
+                    <th>Nome do Analista</th>
+                    <th>Data Monitoria</th>
+                    <th>Pontuação Total</th>
+                    <th>Média</th>
+                    <th>Itens Avaliados</th>
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                {% for resultado in resultados %}
+                    <tr>
+                        <td>{{ resultado.monitoria.nome_analista }}</td>
+                        <td>{{ resultado.monitoria.data_monitoria }}</td>
+                        <td>{{ resultado.total_pontos }}</td>
+                        <td>{{ resultado.media }}</td>
+                        <td>
+                            <ul>
+                                <li>Se Apresentou: {{ resultado.monitoria.se_apresentou }}</li>
+                                <li>Atendeu Prontidão: {{ resultado.monitoria.atendeu_prontidao }}</li>
+                                <li>Ouviu Demanda: {{ resultado.monitoria.ouviu_demanda }}</li>
+                                <li>Demonstrou Empatia: {{ resultado.monitoria.demonstrou_empatia }}</li>
+                                <li>Realizou Sondagem: {{ resultado.monitoria.realizou_sondagem }}</li>
+                                <li>Argumentou Cancelamento: {{ resultado.monitoria.argumentou_cancelamento }}</li>
+                                <li>Respeitou Cliente: {{ resultado.monitoria.respeitou_cliente }}</li>
+                                <li>Confirmação Cadastral: {{ resultado.monitoria.confirmacao_cadastral }}</li>
+                                <li>Contornou ODC: {{ resultado.monitoria.contornou_odc }}</li>
+                                <li>Seguiu Procedimentos: {{ resultado.monitoria.seguiu_procedimentos }}</li>
+                            </ul>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
 
-    <hr>
-
-    <!-- Exibindo a lista de monitorias filtradas -->
-    <h3>Monitorias Filtradas</h3>
-    <table>
-        <thead>
-            <tr>
-                <th>Analista</th>
-                <th>Data da Monitoria</th>
-                <th>Nota</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for monitoria in monitorias %}
-                <tr>
-                    <td>{{ monitoria.nome_analista }}</td>
-                    <td>{{ monitoria.data_monitoria }}</td>
-                    <td>{{ monitoria.nota }}</td> <!-- Exibindo a nota da monitoria -->
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-
+        <h3>Média Consolidada: {{ media_consolidada }}%</h3>
+        <h3>Pontuação Média por Item</h3>
+        <ul>
+            <li>Se Apresentou: {{ media_se_apresentou }}%</li>
+            <li>Atendeu Prontidão: {{ media_atendeu_prontidao }}%</li>
+            <li>Ouviu Demanda: {{ media_ouviu_demanda }}%</li>
+            <li>Demonstrou Empatia: {{ media_demonstrou_empatia }}%</li>
+            <li>Realizou Sondagem: {{ media_realizou_sondagem }}%</li>
+            <li>Argumentou Cancelamento: {{ media_argumentou_cancelamento }}%</li>
+            <li>Respeitou Cliente: {{ media_respeitou_cliente }}%</li>
+            <li>Confirmação Cadastral: {{ media_confirmacao_cadastral }}%</li>
+            <li>Contornou ODC: {{ media_contornou_odc }}%</li>
+            <li>Seguiu Procedimentos: {{ media_seguiu_procedimentos }}%</li>
+        </ul>
+    {% else %}
+        <p>Nenhum resultado encontrado.</p>
+    {% endif %}
 </body>
 </html>

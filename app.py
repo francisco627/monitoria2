@@ -49,6 +49,19 @@ class Monitoria(db.Model):
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False)
     assinatura = db.Column(db.String(100))  # Adiciona a coluna assinatura
     data_assinatura = db.Column(db.DateTime)  # Adiciona a coluna para data da assinatura
+    # Adicionando as pontuações específicas para cada item de monitoria
+    se_apresentou = db.Column(db.Integer, nullable=True)  # 15 pontos
+    atendeu_prontidao = db.Column(db.Integer, nullable=True)  # 25 pontos
+    ouviu_demanda = db.Column(db.Integer, nullable=True)  # 20 pontos
+    demonstrou_empatia = db.Column(db.Integer, nullable=True)  # 25 pontos
+    realizou_sondagem = db.Column(db.Integer, nullable=True)  # 15 pontos
+
+    # Itens críticos que, se houver erro, anulam a nota
+    argumentou_cancelamento = db.Column(db.Integer, nullable=True)
+    respeitou_cliente = db.Column(db.Integer, nullable=True)
+    confirmacao_cadastral = db.Column(db.Integer, nullable=True)
+    contornou_odc = db.Column(db.Integer, nullable=True)
+    seguiu_procedimentos = db.Column(db.Integer, nullable=True)
 
 
 
@@ -438,16 +451,14 @@ def relatorio():
 def relatorio_analista():
     analistas = Monitoria.query.with_entities(Monitoria.nome_analista).distinct()  # Busca todos os analistas para o filtro
     monitorias = []
-    notas_maximas = {}  # Variável para armazenar as notas máximas por item
-    notas_media_por_item = {}  # Variável para armazenar a média das notas por item
-    media_geral = 0  # Variável para armazenar a média geral
 
+    # Verifica se o método é POST
     if request.method == 'POST':
         analista_nome = request.form.get('analista')
         data_inicio = request.form.get('data_inicio')
         data_fim = request.form.get('data_fim')
 
-        # Filtragem das monitorias
+        # Filtragem das monitorias, caso os filtros tenham sido fornecidos
         query = Monitoria.query
         if analista_nome:
             query = query.filter(Monitoria.nome_analista == analista_nome)
@@ -458,37 +469,55 @@ def relatorio_analista():
 
         monitorias = query.all()
 
-        # Lógica para calcular a média geral e as notas máximas por item
-        total_notas = 0
-        total_monitorias = len(monitorias)
+    else:
+        # Se o método não for POST (primeiro carregamento ou sem filtros), pega todas as monitorias
+        monitorias = Monitoria.query.all()
 
-        # Calcular as notas máximas e a média das notas por item
-        for monitoria in monitorias:
-            total_notas += monitoria.nota  # Assumindo que a nota é o campo 'nota'
-            for item, nota in monitoria.itens_notas.items():  # Assumindo que você tem um campo 'itens_notas' que é um dicionário
-                if item not in notas_maximas:
-                    notas_maximas[item] = 0  # Inicializa as notas máximas
-                notas_maximas[item] = max(notas_maximas[item], nota)  # Mantém a maior nota registrada para cada item
+    # Para armazenar os resultados para exibição na página
+    resultados = []
 
-                if item not in notas_media_por_item:
-                    notas_media_por_item[item] = []  # Inicializa a lista de notas por item
-                notas_media_por_item[item].append(nota)  # Adiciona a nota ao item correspondente
+    # Calculando a pontuação e média
+    for monitoria in monitorias:
+        total_pontos = 0
+        total_itens = 0
+        anula_nota = False  # Flag para verificar se algum item crítico anulou a nota
 
-        # Calcular a média geral
-        if total_monitorias > 0:
-            media_geral = total_notas / total_monitorias
+        # Adicionando os itens e suas pontuações
+        itens = [
+            ('se_apresentou', 15),
+            ('atendeu_prontidao', 25),
+            ('ouviu_demanda', 20),
+            ('demonstrou_empatia', 25),
+            ('realizou_sondagem', 15),
+            ('argumentou_cancelamento', 20),
+            ('respeitou_cliente', 15),
+            ('confirmacao_cadastral', 10),
+            ('contornou_odc', 15),
+            ('seguiu_procedimentos', 20),
+        ]
 
-        # Calcular a média por item
-        for item in notas_media_por_item:
-            notas_media_por_item[item] = sum(notas_media_por_item[item]) / len(notas_media_por_item[item])
+        for item, max_pontos in itens:
+            pontuacao = getattr(monitoria, item, 0)
+            if pontuacao == 0:  # Se algum item crítico tem 0, anula a nota
+                anula_nota = True
+            total_pontos += pontuacao
+            total_itens += max_pontos
 
-    # Renderiza a página com os dados calculados
-    return render_template('relatorio_analista.html', 
-                           analistas=analistas, 
-                           monitorias=monitorias, 
-                           media_geral=media_geral,
-                           notas_maximas=notas_maximas,
-                           notas_media_por_item=notas_media_por_item)
+        # Se algum item crítico anulou a nota, a nota final será 0
+        if anula_nota:
+            total_pontos = 0
+
+        # Calculando a média (caso o total de itens não seja zero)
+        media = (total_pontos / total_itens) * 100 if total_itens > 0 else 0
+
+        resultados.append({
+            'monitoria': monitoria,
+            'total_pontos': total_pontos,
+            'media': media,
+        })
+
+    return render_template('relatorio_analista.html', analistas=analistas, monitorias=monitorias, resultados=resultados)
+
 
 
 # Rota para registrar um novo usuário
