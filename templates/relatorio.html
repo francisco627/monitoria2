@@ -205,15 +205,25 @@
             </tr>
         </thead>
         <tbody>
+            {% if pontuacoes_por_item %}
             {% for item, pontuacoes in pontuacoes_por_item.items() %}
                 <tr>
                     <td>{{ item }}</td>
                     <td>
                         {% if not analista_selecionado %}
-                            {{ media_itens_por_data[item] | round(2) if media_itens_por_data[item] else 'N/A' }}
+                            {{ media_itens_por_data[item] | round(2) if item in media_itens_por_data else 'N/A' }}
                         {% else %}
                             {{ media_itens_por_analista[item] | round(2) if item in media_itens_por_analista else 'N/A' }}
                         {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td colspan="2">Nenhum dado disponível.</td>
+            </tr>
+        {% endif %}
+        
                     </td>
                 </tr>
             {% endfor %}
@@ -221,37 +231,9 @@
     </table>
 </div>
 
-<!-- Gráfico -->
-<div class="chart-container">
-    <canvas id="graficoAnalista"></canvas>
-</div>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var ctx = document.getElementById('graficoAnalista').getContext('2d');
-        var chart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: ["Se Apresentou", "Atendeu Prontidão", "Ouviu Demanda", "Demonstrou Empatia", "Realizou Sondagem"],
-                datasets: [{
-                    label: "Pontuação Alcançada",
-                    data: [pontuacoes['se_apresentou'], pontuacoes['atendeu_prontidao'], pontuacoes['ouviu_demanda'], pontuacoes['demonstrou_empatia'], pontuacoes['realizou_sondagem']],
-                    backgroundColor: '#007BFF',
-                    borderColor: '#0056b3',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
-    });
 </script>
+
 
 <a href="{{ url_for('dashboard') }}" class="button">Voltar ao Dashboard</a>
 
