@@ -452,13 +452,12 @@ def relatorio_analista():
     analistas = Monitoria.query.with_entities(Monitoria.nome_analista).distinct()  # Busca todos os analistas para o filtro
     monitorias = []
 
-    # Verifica se o método é POST
     if request.method == 'POST':
         analista_nome = request.form.get('analista')
         data_inicio = request.form.get('data_inicio')
         data_fim = request.form.get('data_fim')
 
-        # Filtragem das monitorias, caso os filtros tenham sido fornecidos
+        # Filtragem das monitorias
         query = Monitoria.query
         if analista_nome:
             query = query.filter(Monitoria.nome_analista == analista_nome)
@@ -469,54 +468,113 @@ def relatorio_analista():
 
         monitorias = query.all()
 
-    else:
-        # Se o método não for POST (primeiro carregamento ou sem filtros), pega todas as monitorias
-        monitorias = Monitoria.query.all()
+    # Itens críticos para verificar se anula a nota
+    itens_criticos = [
+        'argumentou_cancelamento', 'respeitou_cliente', 'confirmacao_cadastral',
+        'contornou_odc', 'seguiu_procedimentos'
+    ]
+    
+    # Variáveis de totalização
+    total_pontos = 0
+    total_itens = 0
+    anula_nota = False
 
-    # Para armazenar os resultados para exibição na página
-    resultados = []
+    # Variáveis de pontuação por item
+    total_se_apresentou = 0
+    total_atendeu_prontidao = 0
+    total_ouviu_demanda = 0
+    total_demonstrou_empatia = 0
+    total_realizou_sondagem = 0
+    total_argumentou_cancelamento = 0
+    total_respeitou_cliente = 0
+    total_confirmacao_cadastral = 0
+    total_contornou_odc = 0
+    total_seguiu_procedimentos = 0
 
-    # Calculando a pontuação e média
+    # Processando as monitorias e calculando os totais
     for monitoria in monitorias:
-        total_pontos = 0
-        total_itens = 0
-        anula_nota = False  # Flag para verificar se algum item crítico anulou a nota
+        # Inicializa a pontuação total para a monitoria
+        monitoria_pontos = 0
 
-        # Adicionando os itens e suas pontuações
-        itens = [
-            ('se_apresentou', 15),
-            ('atendeu_prontidao', 25),
-            ('ouviu_demanda', 20),
-            ('demonstrou_empatia', 25),
-            ('realizou_sondagem', 15),
-            ('argumentou_cancelamento', 20),
-            ('respeitou_cliente', 15),
-            ('confirmacao_cadastral', 10),
-            ('contornou_odc', 15),
-            ('seguiu_procedimentos', 20),
-        ]
+        # Laço para percorrer os itens de pontuação
+        for item in ['se_apresentou', 'atendeu_prontidao', 'ouviu_demanda', 
+                     'demonstrou_empatia', 'realizou_sondagem', 
+                     'argumentou_cancelamento', 'respeitou_cliente', 
+                     'confirmacao_cadastral', 'contornou_odc', 'seguiu_procedimentos']:
+            pontuacao = getattr(monitoria, item, None)  # Obtém a pontuação do item, caso exista
+            
+            if pontuacao is None:  # Caso a pontuação seja None, trata como 0
+                pontuacao = 0
 
-        for item, max_pontos in itens:
-            pontuacao = getattr(monitoria, item, 0)
-            if pontuacao == 0:  # Se algum item crítico tem 0, anula a nota
-                anula_nota = True
-            total_pontos += pontuacao
-            total_itens += max_pontos
+            # Verifica se algum item crítico tem pontuação 0
+            if item in itens_criticos and pontuacao == 0:
+                anula_nota = True  # Anula a nota total se algum item crítico for 0
+                break  # Se anular a nota, não precisa continuar somando outros itens
 
-        # Se algum item crítico anulou a nota, a nota final será 0
+            # Acumulando a pontuação total
+            monitoria_pontos += pontuacao
+
+            # Acumulando as pontuações individuais por item
+            if item == 'se_apresentou':
+                total_se_apresentou += pontuacao
+            elif item == 'atendeu_prontidao':
+                total_atendeu_prontidao += pontuacao
+            elif item == 'ouviu_demanda':
+                total_ouviu_demanda += pontuacao
+            elif item == 'demonstrou_empatia':
+                total_demonstrou_empatia += pontuacao
+            elif item == 'realizou_sondagem':
+                total_realizou_sondagem += pontuacao
+            elif item == 'argumentou_cancelamento':
+                total_argumentou_cancelamento += pontuacao
+            elif item == 'respeitou_cliente':
+                total_respeitou_cliente += pontuacao
+            elif item == 'confirmacao_cadastral':
+                total_confirmacao_cadastral += pontuacao
+            elif item == 'contornou_odc':
+                total_contornou_odc += pontuacao
+            elif item == 'seguiu_procedimentos':
+                total_seguiu_procedimentos += pontuacao
+
+        # Verifica se a nota precisa ser anulada
         if anula_nota:
-            total_pontos = 0
+            monitoria_pontos = 0
 
-        # Calculando a média (caso o total de itens não seja zero)
-        media = (total_pontos / total_itens) * 100 if total_itens > 0 else 0
+        total_pontos += monitoria_pontos
+        total_itens += len(['se_apresentou', 'atendeu_prontidao', 'ouviu_demanda', 
+                            'demonstrou_empatia', 'realizou_sondagem', 
+                            'argumentou_cancelamento', 'respeitou_cliente', 
+                            'confirmacao_cadastral', 'contornou_odc', 
+                            'seguiu_procedimentos'])
 
-        resultados.append({
-            'monitoria': monitoria,
-            'total_pontos': total_pontos,
-            'media': media,
-        })
+    # Calculando as médias por item (caso necessário)
+    media_se_apresentou = total_se_apresentou / len(monitorias) if len(monitorias) > 0 else 0
+    media_atendeu_prontidao = total_atendeu_prontidao / len(monitorias) if len(monitorias) > 0 else 0
+    media_ouviu_demanda = total_ouviu_demanda / len(monitorias) if len(monitorias) > 0 else 0
+    media_demonstrou_empatia = total_demonstrou_empatia / len(monitorias) if len(monitorias) > 0 else 0
+    media_realizou_sondagem = total_realizou_sondagem / len(monitorias) if len(monitorias) > 0 else 0
+    media_argumentou_cancelamento = total_argumentou_cancelamento / len(monitorias) if len(monitorias) > 0 else 0
+    media_respeitou_cliente = total_respeitou_cliente / len(monitorias) if len(monitorias) > 0 else 0
+    media_confirmacao_cadastral = total_confirmacao_cadastral / len(monitorias) if len(monitorias) > 0 else 0
+    media_contornou_odc = total_contornou_odc / len(monitorias) if len(monitorias) > 0 else 0
+    media_seguiu_procedimentos = total_seguiu_procedimentos / len(monitorias) if len(monitorias) > 0 else 0
 
-    return render_template('relatorio_analista.html', analistas=analistas, monitorias=monitorias, resultados=resultados)
+    # Calculando a média geral
+    media_geral = total_pontos / total_itens if total_itens > 0 else 0
+
+    return render_template('relatorio_analista.html', 
+                           analistas=analistas, monitorias=monitorias,
+                           media_geral=media_geral,
+                           media_se_apresentou=media_se_apresentou,
+                           media_atendeu_prontidao=media_atendeu_prontidao,
+                           media_ouviu_demanda=media_ouviu_demanda,
+                           media_demonstrou_empatia=media_demonstrou_empatia,
+                           media_realizou_sondagem=media_realizou_sondagem,
+                           media_argumentou_cancelamento=media_argumentou_cancelamento,
+                           media_respeitou_cliente=media_respeitou_cliente,
+                           media_confirmacao_cadastral=media_confirmacao_cadastral,
+                           media_contornou_odc=media_contornou_odc,
+                           media_seguiu_procedimentos=media_seguiu_procedimentos)
 
 
 
