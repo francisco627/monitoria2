@@ -124,10 +124,10 @@ def monitoria_form():
 
         total_points = 100
         penalties = {
-            'se_apresentou': 10,
-            'atendeu_prontidao': 15,
-            'ouviu_demanda': 10,
-            'demonstrou_empatia': 10,
+            'se_apresentou': 15,
+            'atendeu_prontidao': 25,
+            'ouviu_demanda': 20,
+            'demonstrou_empatia': 25,
             'realizou_sondagem': 15
         }
 
@@ -341,18 +341,18 @@ def relatorio():
     nota_media_por_analista = {}
     
     pontuacoes_por_item = {
-        'se_apresentou': [20],
-        'atendeu_prontidao': [20],
+        'se_apresentou': [15],
+        'atendeu_prontidao': [25],
         'ouviu_demanda': [20],
-        'demonstrou_empatia': [20],
-        'realizou_sondagem': [20]
+        'demonstrou_empatia': [25],
+        'realizou_sondagem': [15]
     }
 
     valores_pontuacao = {
-        'se_apresentou': 10,
-        'atendeu_prontidao': 15,
-        'ouviu_demanda': 10,
-        'demonstrou_empatia': 10,
+        'se_apresentou': 15,
+        'atendeu_prontidao': 25,
+        'ouviu_demanda': 20,
+        'demonstrou_empatia': 25,
         'realizou_sondagem': 15
     }
 
