@@ -435,7 +435,6 @@ def relatorio():
 
 #Relatorio Analistas
 
-
 @app.route('/relatorio_analista', methods=['GET', 'POST'])
 def relatorio_analista():
     analistas = Monitoria.query.with_entities(Monitoria.nome_analista).distinct()  # Busca todos os analistas para o filtro
@@ -465,7 +464,7 @@ def relatorio_analista():
             total_notas = 0
             total_monitorias = len(monitorias)
             for monitoria in monitorias:
-                total_notas += monitoria.nota_avaliacao  # Aqui você pega a nota de avaliação
+                total_notas += monitoria.nota  # Usando o campo 'nota' no lugar de 'nota_avaliacao'
 
                 # Atualizando as notas máximas e alcançadas por item
                 for item, nota in monitoria.notas_por_item.items():  # Exemplo de dicionário de notas por item
@@ -489,7 +488,6 @@ def relatorio_analista():
                                    media_geral=media_geral, notas_maximas=notas_maximas, notas_media_por_item=notas_media_por_item)
     
     return render_template('relatorio_analista.html', analistas=analistas, monitorias=monitorias)
-
 
 
 # Rota para registrar um novo usuário

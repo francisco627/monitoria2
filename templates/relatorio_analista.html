@@ -3,16 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Relatório do Analista</title>
+    <title>Relatório de Monitoria</title>
+    <!-- Aqui você pode adicionar links para CSS ou bibliotecas como Bootstrap -->
 </head>
 <body>
+    <h1>Relatório de Monitoria por Analista</h1>
 
-    <h1>Relatório do Analista</h1>
-
-    <form method="POST">
-        <label for="analista">Selecione o Analista:</label>
+    <!-- Formulário de filtros -->
+    <form method="POST" action="{{ url_for('relatorio_analista') }}">
+        <label for="analista">Analista:</label>
         <select name="analista" id="analista">
-            <option value="">Todos</option>
+            <option value="">Selecione um analista</option>
             {% for analista in analistas %}
                 <option value="{{ analista.nome_analista }}">{{ analista.nome_analista }}</option>
             {% endfor %}
@@ -24,54 +25,57 @@
         <label for="data_fim">Data Fim:</label>
         <input type="date" name="data_fim" id="data_fim">
 
-        <button type="submit">Gerar Relatório</button>
+        <button type="submit">Filtrar</button>
     </form>
 
-    {% if monitorias %}
-        <h2>Média Geral: {{ media_geral | round(2) }}</h2>
+    <hr>
 
-        <h3>Notas por Item</h3>
-        <table border="1">
-            <thead>
-                <tr>
-                    <th>Item</th>
-                    <th>Nota Máxima</th>
-                    <th>Nota Média Alcançada</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item, nota_maxima in notas_maximas.items() %}
-                    <tr>
-                        <td>{{ item }}</td>
-                        <td>{{ nota_maxima }}</td>
-                        <td>{{ notas_media_por_item[item] | round(2) }}</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <!-- Exibindo a média geral -->
+    <h2>Média Geral: {{ media_geral }}</h2>
 
-        <h3>Detalhamento das Monitorias</h3>
-        <table border="1">
-            <thead>
+    <!-- Exibindo as notas máximas e alcançadas por item -->
+    <h3>Notas Máximas por Item:</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Nota Máxima</th>
+                <th>Nota Alcançada</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item, nota_maxima in notas_maximas.items() %}
                 <tr>
-                    <th>Analista</th>
-                    <th>Data</th>
-                    <th>Nota de Avaliação</th>
+                    <td>{{ item }}</td>
+                    <td>{{ nota_maxima }}</td>
+                    <td>{{ notas_media_por_item[item] }}</td> <!-- Média das notas alcançadas -->
                 </tr>
-            </thead>
-            <tbody>
-                {% for monitoria in monitorias %}
-                    <tr>
-                        <td>{{ monitoria.nome_analista }}</td>
-                        <td>{{ monitoria.data_monitoria }}</td>
-                        <td>{{ monitoria.nota_avaliacao }}</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    {% else %}
-        <p>Nenhuma monitoria encontrada para os filtros selecionados.</p>
-    {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <hr>
+
+    <!-- Exibindo a lista de monitorias filtradas -->
+    <h3>Monitorias Filtradas</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Analista</th>
+                <th>Data da Monitoria</th>
+                <th>Nota</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for monitoria in monitorias %}
+                <tr>
+                    <td>{{ monitoria.nome_analista }}</td>
+                    <td>{{ monitoria.data_monitoria }}</td>
+                    <td>{{ monitoria.nota }}</td> <!-- Exibindo a nota da monitoria -->
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
 </body>
 </html>
