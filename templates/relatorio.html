@@ -120,15 +120,6 @@
             background-color: #f9f9f9;
         }
 
-        /* Gráfico */
-        .chart-container {
-            margin-top: 30px;
-            padding: 20px;
-            background-color: #f9f9f9;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-        }
-
         /* Botão voltar */
         .button {
             background-color: #007BFF;
@@ -205,35 +196,22 @@
             </tr>
         </thead>
         <tbody>
-            {% if pontuacoes_por_item %}
             {% for item, pontuacoes in pontuacoes_por_item.items() %}
                 <tr>
                     <td>{{ item }}</td>
                     <td>
                         {% if not analista_selecionado %}
-                            {{ media_itens_por_data[item] | round(2) if item in media_itens_por_data else 'N/A' }}
+                            {{ media_itens_por_data[item] | round(2) if media_itens_por_data.get(item) else 'N/A' }}
                         {% else %}
                             {{ media_itens_por_analista[item] | round(2) if item in media_itens_por_analista else 'N/A' }}
                         {% endif %}
                     </td>
                 </tr>
             {% endfor %}
-        {% else %}
-            <tr>
-                <td colspan="2">Nenhum dado disponível.</td>
-            </tr>
-        {% endif %}
-        
-                    </td>
-                </tr>
-            {% endfor %}
         </tbody>
     </table>
+    
 </div>
-
-
-</script>
-
 
 <a href="{{ url_for('dashboard') }}" class="button">Voltar ao Dashboard</a>
 
