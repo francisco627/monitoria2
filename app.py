@@ -345,7 +345,12 @@ def relatorio():
         'atendeu_prontidao': [],
         'ouviu_demanda': [],
         'demonstrou_empatia': [],
-        'realizou_sondagem': []
+        'realizou_sondagem': [],
+        'argumentou_cancelamento': [],
+        'respeitou_cliente': [],
+        'confirmacao_cadastral': [],
+        'contornou_odc': [],
+        'seguiu_procedimentos': []
     }
 
     valores_pontuacao = {
@@ -355,6 +360,14 @@ def relatorio():
         'demonstrou_empatia': 25,
         'realizou_sondagem': 15
     }
+
+    itens_criticos = [
+        'argumentou_cancelamento',
+        'respeitou_cliente',
+        'confirmacao_cadastral',
+        'contornou_odc',
+        'seguiu_procedimentos'
+    ]
 
     # Filtragem de dados
     analista_selecionado = request.form.get('analista')
@@ -376,13 +389,21 @@ def relatorio():
         if analista not in media_pontuacao_por_analista:
             media_pontuacao_por_analista[analista] = []
 
-        pontuacao_total = 0
+        # Checar itens críticos
+        itens_criticos_falha = any(item in monitoria.penalidades for item in itens_criticos)
+        if itens_criticos_falha:
+            pontuacao_total = 0
+        else:
+            pontuacao_total = 0
+            for item, valor in valores_pontuacao.items():
+                penalidade = valor if item in monitoria.penalidades else 0
+                pontuacao_item = valor - penalidade
+                pontuacoes_por_item[item].append(pontuacao_item)
+                pontuacao_total += pontuacao_item
 
-        for item, valor in valores_pontuacao.items():
-            penalidade = valor if item in monitoria.penalidades else 0
-            pontuacao_item = valor - penalidade
-            pontuacoes_por_item[item].append(pontuacao_item)
-            pontuacao_total += pontuacao_item
+        # Adicionar pontuações dos itens críticos (0 ou 1)
+        for item in itens_criticos:
+            pontuacoes_por_item[item].append(0 if item in monitoria.penalidades else 1)
 
         media_pontuacao_por_analista[analista].append(pontuacao_total)
 
