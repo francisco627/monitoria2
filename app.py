@@ -434,15 +434,14 @@ def relatorio():
 
 
 #Relatorio Analistas
-
 @app.route('/relatorio_analista', methods=['GET', 'POST'])
 def relatorio_analista():
     analistas = Monitoria.query.with_entities(Monitoria.nome_analista).distinct()  # Busca todos os analistas para o filtro
     monitorias = []
-    media_geral = 0
-    notas_maximas = {}
-    notas_alcancadas = {}
-    
+    notas_maximas = {}  # Variável para armazenar as notas máximas por item
+    notas_media_por_item = {}  # Variável para armazenar a média das notas por item
+    media_geral = 0  # Variável para armazenar a média geral
+
     if request.method == 'POST':
         analista_nome = request.form.get('analista')
         data_inicio = request.form.get('data_inicio')
@@ -459,35 +458,37 @@ def relatorio_analista():
 
         monitorias = query.all()
 
-        # Calculando a média geral, notas máximas e notas alcançadas
-        if monitorias:
-            total_notas = 0
-            total_monitorias = len(monitorias)
-            for monitoria in monitorias:
-                total_notas += monitoria.nota  # Usando o campo 'nota' no lugar de 'nota_avaliacao'
+        # Lógica para calcular a média geral e as notas máximas por item
+        total_notas = 0
+        total_monitorias = len(monitorias)
 
-                # Atualizando as notas máximas e alcançadas por item
-                for item, nota in monitoria.notas_por_item.items():  # Exemplo de dicionário de notas por item
-                    if item not in notas_maximas:
-                        notas_maximas[item] = 100  # Nota máxima possível por item (supondo que seja 100)
-                    if item not in notas_alcancadas:
-                        notas_alcancadas[item] = []
+        # Calcular as notas máximas e a média das notas por item
+        for monitoria in monitorias:
+            total_notas += monitoria.nota  # Assumindo que a nota é o campo 'nota'
+            for item, nota in monitoria.itens_notas.items():  # Assumindo que você tem um campo 'itens_notas' que é um dicionário
+                if item not in notas_maximas:
+                    notas_maximas[item] = 0  # Inicializa as notas máximas
+                notas_maximas[item] = max(notas_maximas[item], nota)  # Mantém a maior nota registrada para cada item
 
-                    notas_alcancadas[item].append(nota)
+                if item not in notas_media_por_item:
+                    notas_media_por_item[item] = []  # Inicializa a lista de notas por item
+                notas_media_por_item[item].append(nota)  # Adiciona a nota ao item correspondente
 
-            # Calculando a média geral
-            if total_monitorias > 0:
-                media_geral = total_notas / total_monitorias
+        # Calcular a média geral
+        if total_monitorias > 0:
+            media_geral = total_notas / total_monitorias
 
-            # Calculando a média por item
-            notas_media_por_item = {}
-            for item, notas in notas_alcancadas.items():
-                notas_media_por_item[item] = sum(notas) / len(notas)
+        # Calcular a média por item
+        for item in notas_media_por_item:
+            notas_media_por_item[item] = sum(notas_media_por_item[item]) / len(notas_media_por_item[item])
 
-            return render_template('relatorio_analista.html', analistas=analistas, monitorias=monitorias,
-                                   media_geral=media_geral, notas_maximas=notas_maximas, notas_media_por_item=notas_media_por_item)
-    
-    return render_template('relatorio_analista.html', analistas=analistas, monitorias=monitorias)
+    # Renderiza a página com os dados calculados
+    return render_template('relatorio_analista.html', 
+                           analistas=analistas, 
+                           monitorias=monitorias, 
+                           media_geral=media_geral,
+                           notas_maximas=notas_maximas,
+                           notas_media_por_item=notas_media_por_item)
 
 
 # Rota para registrar um novo usuário
