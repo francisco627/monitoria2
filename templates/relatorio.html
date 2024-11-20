@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Relatório de Monitorias</title>
     <style>
-        /* Estilo geral */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -14,27 +13,13 @@
             color: #333;
         }
 
-        /* Cabeçalho */
         header {
             background-color: #007BFF;
             color: #fff;
             padding: 20px;
             text-align: center;
-            border-bottom: 3px solid #0056b3;
         }
 
-        header img.logo {
-            max-width: 60px;
-            margin-right: 15px;
-        }
-
-        header h2 {
-            display: inline-block;
-            margin: 0;
-            font-size: 1.5em;
-        }
-
-        /* Conteúdo principal */
         .container {
             padding: 20px;
             max-width: 900px;
@@ -44,61 +29,6 @@
             box-shadow: 0px 0px 12px rgba(0, 0, 0, 0.1);
         }
 
-        /* Formulário */
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        label {
-            display: block;
-            font-weight: bold;
-            color: #007BFF;
-            margin-bottom: 5px;
-        }
-
-        input[type="date"],
-        select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 1em;
-        }
-
-        button {
-            background-color: #007BFF;
-            color: #fff;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background-color 0.3s;
-            font-size: 1em;
-        }
-
-        button:hover {
-            background-color: #0056b3;
-        }
-
-        /* Informações do analista */
-        h3, h4 {
-            color: #007BFF;
-            font-size: 1.3em;
-            margin-top: 20px;
-            font-weight: bold;
-        }
-
-        ul {
-            list-style: none;
-            padding: 0;
-        }
-
-        ul li {
-            margin-bottom: 8px;
-        }
-
-        /* Tabela de Pontuações */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -120,7 +50,6 @@
             background-color: #f9f9f9;
         }
 
-        /* Botão voltar */
         .button {
             background-color: #007BFF;
             color: white;
@@ -129,8 +58,6 @@
             text-decoration: none;
             font-weight: bold;
             margin-top: 20px;
-            display: inline-block;
-            transition: background-color 0.3s;
         }
 
         .button:hover {
@@ -141,79 +68,50 @@
 <body>
 
 <header>
-    <img src="{{ url_for('static', filename='static/img/logo.png') }}" alt="Logo Fivenet" class="logo">
     <h2>Relatório de Monitorias</h2>
 </header>
 
 <div class="container">
-    <form method="POST">
-        <div class="form-group">
-            <label for="analista">Analista:</label>
-            <select name="analista" id="analista">
-                <option value="">Selecione</option>
-                {% for analista in analistas %}
-                    <option value="{{ analista.matricula }}" {% if analista.matricula == request.form.get('analista') %}selected{% endif %}>{{ analista.nome }}</option>
-                {% endfor %}
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label for="data_inicio">Data Início:</label>
-            <input type="date" name="data_inicio" id="data_inicio" value="{{ request.form.get('data_inicio') }}">
-        </div>
-
-        <div class="form-group">
-            <label for="data_fim">Data Fim:</label>
-            <input type="date" name="data_fim" id="data_fim" value="{{ request.form.get('data_fim') }}">
-        </div>
-
-        <div class="form-group">
-            <button type="submit">Filtrar</button>
-        </div>
-    </form>
-
-    {% if analista_selecionado %}
-        <h3>Analista: {{ analista_selecionado }}</h3>
-        <ul>
-            <li><strong>Média das Notas: </strong>{{ nota_media_por_analista[analista_selecionado].media | round(2) }}</li>
-            <li><strong>Quantidade de Monitorias: </strong>{{ nota_media_por_analista[analista_selecionado].quantidade }}</li>
-        </ul>
-    {% else %}
-        <h3>Média Geral:</h3>
-        {% for analista, data in nota_media_por_analista.items() %}
-            <h4>{{ analista }}:</h4>
-            <p><strong>Média das Notas: </strong>{{ data.media | round(2) }}</p>
-            <p><strong>Quantidade de Monitorias: </strong>{{ data.quantidade }}</p>
-        {% endfor %}
-    {% endif %}
-
-    <h3>Pontuação por Item:</h3>
+    <h3>Média da Nota de Avaliação por Analista</h3>
     <table>
         <thead>
             <tr>
-                <th>Item</th>
-                <th>Pontuação Média</th>
+                <th>Analista</th>
+                <th>Média das Notas</th>
+                <th>Quantidade de Monitorias</th>
             </tr>
         </thead>
         <tbody>
-            {% for item, pontuacoes in pontuacoes_por_item.items() %}
+            {% for analista, dados in nota_media_por_analista.items() %}
                 <tr>
-                    <td>{{ item }}</td>
-                    <td>
-                        {% if not analista_selecionado %}
-                            {{ media_itens_por_data[item] | round(2) if media_itens_por_data.get(item) else 'N/A' }}
-                        {% else %}
-                            {{ media_itens_por_analista[item] | round(2) if item in media_itens_por_analista else 'N/A' }}
-                        {% endif %}
-                    </td>
+                    <td>{{ analista }}</td>
+                    <td>{{ dados.media | round(2) }}</td>
+                    <td>{{ dados.quantidade }}</td>
                 </tr>
             {% endfor %}
         </tbody>
     </table>
-    
-</div>
 
-<a href="{{ url_for('dashboard') }}" class="button">Voltar ao Dashboard</a>
+    <h3>Notas Consolidadas por Analista</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Analista</th>
+                <th>Média Consolidada</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for analista, dados in nota_consolidada_por_analista.items() %}
+                <tr>
+                    <td>{{ analista }}</td>
+                    <td>{{ dados | round(2) }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ url_for('dashboard') }}" class="button">Voltar ao Dashboard</a>
+</div>
 
 </body>
 </html>

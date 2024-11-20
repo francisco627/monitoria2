@@ -3,157 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Relatório por Analista</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-        }
-
-        h2 {
-            text-align: center;
-            margin: 20px 0;
-            color: #333;
-        }
-
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            background-color: #fff;
-            padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-        }
-
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        label {
-            font-size: 1.1em;
-            color: #555;
-        }
-
-        select, input[type="date"], button {
-            padding: 10px;
-            font-size: 1em;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-
-        button {
-            background-color: #007bff;
-            color: white;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        button:hover {
-            background-color: #0056b3;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border: 1px solid #ddd;
-        }
-
-        th {
-            background-color: #f2f2f2;
-            color: #333;
-        }
-
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-
-        tr:hover {
-            background-color: #f1f1f1;
-        }
-
-        .button {
-            display: inline-block;
-            padding: 10px 20px;
-            margin-top: 20px;
-            background-color: #28a745;
-            color: white;
-            text-decoration: none;
-            border-radius: 4px;
-            transition: background-color 0.3s;
-        }
-
-        .button:hover {
-            background-color: #218838;
-        }
-    </style>
+    <title>Relatório do Analista</title>
 </head>
 <body>
 
-    <div class="container">
-        <h2>Relatório de Monitorias por Analista</h2>
+    <h1>Relatório do Analista</h1>
 
-        <!-- Formulário de filtro -->
-        <form method="POST">
-            <label for="analista">Analista:</label>
-            <select name="analista" id="analista">
-                <option value="">Selecione</option>
-                {% for analista in analistas %}
-                    <option value="{{ analista.nome_analista }}">{{ analista.nome_analista }}</option>
-                {% endfor %}
-            </select>
+    <form method="POST">
+        <label for="analista">Selecione o Analista:</label>
+        <select name="analista" id="analista">
+            <option value="">Todos</option>
+            {% for analista in analistas %}
+                <option value="{{ analista.nome_analista }}">{{ analista.nome_analista }}</option>
+            {% endfor %}
+        </select>
 
-            <label for="data_inicio">Data Início:</label>
-            <input type="date" name="data_inicio" id="data_inicio">
+        <label for="data_inicio">Data Início:</label>
+        <input type="date" name="data_inicio" id="data_inicio">
 
-            <label for="data_fim">Data Fim:</label>
-            <input type="date" name="data_fim" id="data_fim">
+        <label for="data_fim">Data Fim:</label>
+        <input type="date" name="data_fim" id="data_fim">
 
-            <button type="submit">Filtrar</button>
-        </form>
+        <button type="submit">Gerar Relatório</button>
+    </form>
 
-        <!-- Tabela de monitorias -->
-        {% if monitorias %}
-            <table>
-                <thead>
+    {% if monitorias %}
+        <h2>Média Geral: {{ media_geral | round(2) }}</h2>
+
+        <h3>Notas por Item</h3>
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Nota Máxima</th>
+                    <th>Nota Média Alcançada</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item, nota_maxima in notas_maximas.items() %}
                     <tr>
-                        <th>Data</th>
-                        <th>Analista</th>
-                        <th>Nota Geral</th>
-                        <th>Item 1</th>
-                        <th>Item 2</th>
-                        <!-- Adicione mais colunas para cada item da avaliação conforme necessário -->
+                        <td>{{ item }}</td>
+                        <td>{{ nota_maxima }}</td>
+                        <td>{{ notas_media_por_item[item] | round(2) }}</td>
                     </tr>
-                </thead>
-                <tbody>
-                    {% for monitoria in monitorias %}
-                        <tr>
-                            <td>{{ monitoria.data_monitoria.strftime('%d/%m/%Y') }}</td>
-                            <td>{{ monitoria.nome_analista }}</td>
-                            <td>{{ monitoria.nota }}</td>
-                            <td>{{ monitoria.item_1 }}</td>
-                            <td>{{ monitoria.item_2 }}</td>
-                            <!-- Adicione mais células para os itens de avaliação -->
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% else %}
-            <p>Nenhuma monitoria encontrada.</p>
-        {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
 
-        <a href="{{ url_for('dashboard') }}" class="button">Voltar ao Dashboard</a>
-    </div>
+        <h3>Detalhamento das Monitorias</h3>
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Analista</th>
+                    <th>Data</th>
+                    <th>Nota de Avaliação</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for monitoria in monitorias %}
+                    <tr>
+                        <td>{{ monitoria.nome_analista }}</td>
+                        <td>{{ monitoria.data_monitoria }}</td>
+                        <td>{{ monitoria.nota_avaliacao }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Nenhuma monitoria encontrada para os filtros selecionados.</p>
+    {% endif %}
 
 </body>
 </html>

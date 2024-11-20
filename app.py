@@ -435,11 +435,15 @@ def relatorio():
 
 #Relatorio Analistas
 
+
 @app.route('/relatorio_analista', methods=['GET', 'POST'])
 def relatorio_analista():
     analistas = Monitoria.query.with_entities(Monitoria.nome_analista).distinct()  # Busca todos os analistas para o filtro
     monitorias = []
-
+    media_geral = 0
+    notas_maximas = {}
+    notas_alcancadas = {}
+    
     if request.method == 'POST':
         analista_nome = request.form.get('analista')
         data_inicio = request.form.get('data_inicio')
@@ -456,8 +460,36 @@ def relatorio_analista():
 
         monitorias = query.all()
 
-    # Código para processar e renderizar a página de relatório do analista
+        # Calculando a média geral, notas máximas e notas alcançadas
+        if monitorias:
+            total_notas = 0
+            total_monitorias = len(monitorias)
+            for monitoria in monitorias:
+                total_notas += monitoria.nota_avaliacao  # Aqui você pega a nota de avaliação
+
+                # Atualizando as notas máximas e alcançadas por item
+                for item, nota in monitoria.notas_por_item.items():  # Exemplo de dicionário de notas por item
+                    if item not in notas_maximas:
+                        notas_maximas[item] = 100  # Nota máxima possível por item (supondo que seja 100)
+                    if item not in notas_alcancadas:
+                        notas_alcancadas[item] = []
+
+                    notas_alcancadas[item].append(nota)
+
+            # Calculando a média geral
+            if total_monitorias > 0:
+                media_geral = total_notas / total_monitorias
+
+            # Calculando a média por item
+            notas_media_por_item = {}
+            for item, notas in notas_alcancadas.items():
+                notas_media_por_item[item] = sum(notas) / len(notas)
+
+            return render_template('relatorio_analista.html', analistas=analistas, monitorias=monitorias,
+                                   media_geral=media_geral, notas_maximas=notas_maximas, notas_media_por_item=notas_media_por_item)
+    
     return render_template('relatorio_analista.html', analistas=analistas, monitorias=monitorias)
+
 
 
 # Rota para registrar um novo usuário
