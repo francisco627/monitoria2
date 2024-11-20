@@ -1,17 +1,70 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Relatório de Monitoria</title>
+    <title>Relatório de Monitorias</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        label, input, select, button {
+            margin-right: 10px;
+        }
+        .button-container {
+            margin-top: 20px;
+        }
+        .button-container a {
+            padding: 10px 15px;
+            margin-right: 10px;
+            background-color: #f2f2f2;
+            border: 1px solid #ccc;
+            text-decoration: none;
+            color: black;
+            cursor: pointer;
+        }
+        .button-container button {
+            padding: 10px 15px;
+            margin-right: 10px;
+            border: none;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+        }
+        .button-container a:hover, .button-container button:hover {
+            background-color: #ddd;
+        }
+    </style>
 </head>
 <body>
-    <h1>Relatório de Monitoria - Analista</h1>
+    <h1>Relatório de Monitorias</h1>
 
-    <form method="POST">
+    <!-- Botões de Navegação -->
+    <div class="button-container">
+        <!-- Botão de Voltar ao Dashboard -->
+        <a href="{{ url_for('dashboard') }}" class="back-button">Voltar ao Dashboard</a>
+    </div>
+
+    <!-- Formulário de Filtros -->
+    <form method="POST" action="{{ url_for('relatorio_analista') }}">
         <label for="analista">Analista:</label>
         <select name="analista" id="analista">
-            <option value="">Selecione</option>
+            <option value="">Todos</option>
             {% for analista in analistas %}
                 <option value="{{ analista.nome_analista }}">{{ analista.nome_analista }}</option>
             {% endfor %}
@@ -26,60 +79,72 @@
         <button type="submit">Filtrar</button>
     </form>
 
-    <h2>Resultados</h2>
-    {% if resultados %}
-        <table border="1">
+    <!-- Mensagem de Erro -->
+    {% if mensagem_erro %}
+        <div style="color: red;">
+            {{ mensagem_erro }}
+        </div>
+    {% endif %}
+
+    <!-- Bloco de Resultados Consolidados -->
+    {% if monitorias %}
+        <h2>Resultados Consolidados</h2>
+        <p><strong>Média Consolidada da Nota:</strong> {{ media_consolidada | round(2) }}</p>
+
+        <h3>Pontuação Média por Item:</h3>
+        <table>
             <thead>
                 <tr>
-                    <th>Nome do Analista</th>
-                    <th>Data Monitoria</th>
-                    <th>Pontuação Total</th>
-                    <th>Média</th>
-                    <th>Itens Avaliados</th>
+                    <th>Item</th>
+                    <th>Média de Pontuação</th>
                 </tr>
             </thead>
             <tbody>
-                {% for resultado in resultados %}
+                {% for item, media in pontuacao_media_itens.items() %}
                     <tr>
-                        <td>{{ resultado.monitoria.nome_analista }}</td>
-                        <td>{{ resultado.monitoria.data_monitoria }}</td>
-                        <td>{{ resultado.total_pontos }}</td>
-                        <td>{{ resultado.media }}</td>
+                        <td>{{ item }}</td>
+                        <td>{{ media | round(2) }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Nenhum dado encontrado para os filtros aplicados.</p>
+    {% endif %}
+
+    <!-- Tabela de Monitorias -->
+    {% if monitorias %}
+        <h2>Monitorias Detalhadas</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Analista</th>
+                    <th>Data da Monitoria</th>
+                    <th>Nota</th>
+                    {% for item in itens %}
+                        <th>{{ item }}</th>
+                    {% endfor %}
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for monitoria in monitorias %}
+                    <tr>
+                        <td>{{ monitoria.nome_analista }}</td>
+                        <td>{{ monitoria.data_monitoria.strftime('%d/%m/%Y') }}</td>
+                        <td>{{ monitoria.nota }}</td>
+                        {% for item in itens %}
+                            <td>{{ monitoria[item] or 'N/A' }}</td>
+                        {% endfor %}
                         <td>
-                            <ul>
-                                <li>Se Apresentou: {{ resultado.monitoria.se_apresentou }}</li>
-                                <li>Atendeu Prontidão: {{ resultado.monitoria.atendeu_prontidao }}</li>
-                                <li>Ouviu Demanda: {{ resultado.monitoria.ouviu_demanda }}</li>
-                                <li>Demonstrou Empatia: {{ resultado.monitoria.demonstrou_empatia }}</li>
-                                <li>Realizou Sondagem: {{ resultado.monitoria.realizou_sondagem }}</li>
-                                <li>Argumentou Cancelamento: {{ resultado.monitoria.argumentou_cancelamento }}</li>
-                                <li>Respeitou Cliente: {{ resultado.monitoria.respeitou_cliente }}</li>
-                                <li>Confirmação Cadastral: {{ resultado.monitoria.confirmacao_cadastral }}</li>
-                                <li>Contornou ODC: {{ resultado.monitoria.contornou_odc }}</li>
-                                <li>Seguiu Procedimentos: {{ resultado.monitoria.seguiu_procedimentos }}</li>
-                            </ul>
+                           
+                                Editar
+                            </button>
                         </td>
                     </tr>
                 {% endfor %}
             </tbody>
         </table>
-
-        <h3>Média Consolidada: {{ media_consolidada }}%</h3>
-        <h3>Pontuação Média por Item</h3>
-        <ul>
-            <li>Se Apresentou: {{ media_se_apresentou }}%</li>
-            <li>Atendeu Prontidão: {{ media_atendeu_prontidao }}%</li>
-            <li>Ouviu Demanda: {{ media_ouviu_demanda }}%</li>
-            <li>Demonstrou Empatia: {{ media_demonstrou_empatia }}%</li>
-            <li>Realizou Sondagem: {{ media_realizou_sondagem }}%</li>
-            <li>Argumentou Cancelamento: {{ media_argumentou_cancelamento }}%</li>
-            <li>Respeitou Cliente: {{ media_respeitou_cliente }}%</li>
-            <li>Confirmação Cadastral: {{ media_confirmacao_cadastral }}%</li>
-            <li>Contornou ODC: {{ media_contornou_odc }}%</li>
-            <li>Seguiu Procedimentos: {{ media_seguiu_procedimentos }}%</li>
-        </ul>
-    {% else %}
-        <p>Nenhum resultado encontrado.</p>
     {% endif %}
 </body>
 </html>

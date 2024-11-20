@@ -501,9 +501,11 @@ def relatorio_analista():
                      'demonstrou_empatia', 'realizou_sondagem', 
                      'argumentou_cancelamento', 'respeitou_cliente', 
                      'confirmacao_cadastral', 'contornou_odc', 'seguiu_procedimentos']:
-            pontuacao = getattr(monitoria, item, None)  # Obtém a pontuação do item, caso exista
+            # Obtém a pontuação do item, caso exista
+            pontuacao = getattr(monitoria, item, None)
             
-            if pontuacao is None:  # Caso a pontuação seja None, trata como 0
+            # Se a pontuação for None, trata como 0
+            if pontuacao is None:
                 pontuacao = 0
 
             # Verifica se algum item crítico tem pontuação 0
@@ -575,7 +577,6 @@ def relatorio_analista():
                            media_confirmacao_cadastral=media_confirmacao_cadastral,
                            media_contornou_odc=media_contornou_odc,
                            media_seguiu_procedimentos=media_seguiu_procedimentos)
-
 
 
 # Rota para registrar um novo usuário
