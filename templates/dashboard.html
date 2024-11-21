@@ -167,6 +167,7 @@
                 <a href="{{ url_for('monitoria_form') }}" class="button">Nova Monitoria</a>
                 <a href="{{ url_for('registrar_usuario') }}" class="button">Criar Novo Usuário</a>
                 <a href="{{ url_for('relatorio_analista') }}" class="button">Relatório por Analista</a>
+                <a href="{{ url_for('logout') }}" class="button">Logout</a>
                 <input type="text" id="termo" placeholder="Pesquisar..." style="padding: 6px; width: 200px; height: 30px; border: 1px solid #ccc; border-radius: 5px;" oninput="pesquisarMonitorias()">
             {% endif %}
         </div>
@@ -193,7 +194,7 @@
                     <td>{{ monitoria.matricula }}</td>
                     <td>{{ monitoria.nota }}</td>
                     <td>{{ monitoria.status }}</td>
-                    <td>{{ monitoria.data_monitoria.strftime('%d/%m/%Y %H:%M') }}</td>
+                    <td>{{ monitoria.data_monitoria.strftime('%d/%m/%Y') }}</td>
                     <td>{{ monitoria.data_assinatura.strftime('%d/%m/%Y %H:%M') if monitoria.data_assinatura else 'Não assinada' }}</td> <!-- Exibindo a data da assinatura -->
                     <td>{{ monitoria.nome_administrador }}</td> <!-- Nome do administrador -->
                     <td class="actions-cell">

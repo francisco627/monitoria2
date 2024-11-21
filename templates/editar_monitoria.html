@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Monitoria</title>
+</head>
+<body>
+    <h2>Editar Monitoria</h2>
+    <form method="POST" enctype="multipart/form-data">
+        <label for="nome_analista">Nome do Analista:</label>
+        <input type="text" name="nome_analista" id="nome_analista" value="{{ monitoria.nome_analista }}" required>
+
+        <label for="matricula">Matrícula:</label>
+        <input type="text" name="matricula" id="matricula" value="{{ monitoria.matricula }}" required>
+
+        <label for="id_atendimento">ID do Atendimento:</label>
+        <input type="text" name="id_atendimento" id="id_atendimento" value="{{ monitoria.id_atendimento }}" required>
+
+        <label for="descritivo">Descritivo:</label>
+        <textarea name="descritivo" id="descritivo" required>{{ monitoria.descritivo }}</textarea>
+
+        <label for="arquivo_pdf">Novo Arquivo PDF:</label>
+        <input type="file" name="arquivo_pdf" id="arquivo_pdf">
+
+        <label for="gravacao">Nova Gravação:</label>
+        <input type="file" name="gravacao" id="gravacao">
+
+        <button type="submit">Salvar Alterações</button>
+    </form>
+</body>
+</html>

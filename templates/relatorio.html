@@ -101,7 +101,7 @@
                 {% for monitoria in monitorias %}
                     <tr>
                         <td>{{ monitoria.nome_analista }}</td>
-                        <td>{{ monitoria.data_monitoria.strftime('%d/%m/%Y') }}</td>
+                        <td>{{ monitoria.data_monitoria_formatada }}</td>
                         <td>{{ monitoria.nota }}</td>
                         {% for item in itens %}
                             <td>{{ monitoria[item] or 'N/A' }}</td>

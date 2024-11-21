@@ -125,10 +125,15 @@ def login():
 # Rota para logout
 @app.route('/logout')
 def logout():
+    # Remove as chaves de sessão
     session.pop('usuario', None)
     session.pop('usuario_id', None)
     session.pop('grupo', None)
+    
+    # Redireciona para a página de login
     return redirect(url_for('index'))
+
+
 
 # Rota para o formulário de monitoria
 @app.route('/monitoria', methods=['GET', 'POST'])

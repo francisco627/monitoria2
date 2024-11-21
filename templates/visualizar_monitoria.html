@@ -131,7 +131,6 @@
         <img src="{{ url_for('static', filename='static/img/logo.png') }}" alt="Logo Fivenet" class="logo">
         <h2>Monitoria: {{ monitoria.nome_analista }}</h2>
 
-        
         <div class="info-card">
             <p><span class="strong">Matrícula:</span> {{ monitoria.matricula }}</p>
             <p><span class="strong">ID do Atendimento:</span> {{ monitoria.id_atendimento }}</p>
@@ -153,6 +152,7 @@
             <p><strong>Link da Monitoria:</strong> Nenhum link incluído</p>
         {% endif %}
 
+        
         <a href="{{ url_for('dashboard') }}" class="button">Voltar ao Dashboard</a>
     </main>
     <footer>
