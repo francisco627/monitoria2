@@ -1,11 +1,14 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash, send_from_directory, abort
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from sqlalchemy import func
 from datetime import datetime
+import pytz
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from waitress import serve  # Importação do waitress
 import os
+
 
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'
@@ -37,6 +40,7 @@ class Monitoria(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     link_incluso = db.Column(db.String(255), nullable=True)
     nome_analista = db.Column(db.String(100), nullable=False)
+    nome_administrador = db.Column(db.String(100))  # Novo campo para o nome do administrador
     matricula = db.Column(db.String(100), nullable=False)
     id_atendimento = db.Column(db.String(100), nullable=False)
     nota = db.Column(db.Integer, nullable=False)
@@ -172,6 +176,10 @@ def monitoria_form():
                 total_points = 0
                 penalidades_aplicadas.append(penalty)
 
+        # Obter o nome do administrador logado
+        administrador = Usuario.query.get(session['usuario_id'])  # Pegue o usuário logado
+        nome_administrador = administrador.nome  # Supondo que o modelo Usuario tenha o campo nome
+
         nova_monitoria = Monitoria(
             nome_analista=nome_analista,
             matricula=matricula,
@@ -182,7 +190,8 @@ def monitoria_form():
             link_incluso=link_incluso,  # Salve o valor do link_incluso no banco de dados
             penalidades=', '.join(penalidades_aplicadas),
             data_monitoria=datetime.now(),
-            usuario_id=session['usuario_id']
+            usuario_id=session['usuario_id'],
+            nome_administrador=nome_administrador  # Salve o nome do administrador
         )
 
         db.session.add(nova_monitoria)
@@ -191,6 +200,7 @@ def monitoria_form():
         return redirect(url_for('monitoria_sucesso'))
     
     return render_template('monitoria_form.html')
+
 
 
 # Rota de sucesso após submeter monitoria
@@ -346,106 +356,6 @@ def editar_usuario(id):
     return render_template('editar_usuario.html', usuario=usuario)
 
 #Rota Relatorio
-@app.route('/relatorio', methods=['GET', 'POST'])
-def relatorio():
-    analistas = Usuario.query.filter_by(grupo='analista').all()
-
-    # Definindo as pontuações por item
-    valores_pontuacao = {
-        'se_apresentou': 15,
-        'atendeu_prontidao': 25,
-        'ouviu_demanda': 20,
-        'demonstrou_empatia': 25,
-        'realizou_sondagem': 15,
-        'argumentou_cancelamento': 15,
-        'respeitou_cliente': 10,
-        'confirmacao_cadastral': 10,
-        'contornou_odc': 10,
-        'seguiu_procedimentos': 15
-    }
-
-    # Inicializando as variáveis que vamos usar
-    media_pontuacao_por_analista = {}
-    nota_media_por_analista = {}
-    pontuacoes_por_item = {item: [] for item in valores_pontuacao}
-
-    # Recebendo os filtros do formulário
-    analista_selecionado = request.form.get('analista')
-    data_inicio = request.form.get('data_inicio')
-    data_fim = request.form.get('data_fim')
-
-    query = Monitoria.query
-    if analista_selecionado:
-        query = query.filter_by(matricula=analista_selecionado)
-    if data_inicio and data_fim:
-        query = query.filter(Monitoria.data_monitoria.between(data_inicio, data_fim))
-
-    monitorias = query.all()
-    quantidade_monitorias = len(monitorias)
-
-    # Processando as monitorias
-    for monitoria in monitorias:
-        analista = monitoria.nome_analista if analista_selecionado else 'Consolidado'
-
-        if analista not in media_pontuacao_por_analista:
-            media_pontuacao_por_analista[analista] = []
-
-        pontuacao_total = 0
-        for item, valor in valores_pontuacao.items():
-            penalidade = valor if item in monitoria.penalidades else 0
-            pontuacao_item = valor - penalidade
-            pontuacoes_por_item[item].append(pontuacao_item)
-            pontuacao_total += pontuacao_item
-
-        media_pontuacao_por_analista[analista].append(pontuacao_total)
-
-    # Calculando a média das pontuações por analista
-    for analista, pontuacoes in media_pontuacao_por_analista.items():
-        media_avaliacao = sum(pontuacoes) / len(pontuacoes) if pontuacoes else 0
-        nota_media_por_analista[analista] = {
-            'media': media_avaliacao,
-            'quantidade': len(pontuacoes)
-        }
-
-    # Calculando a média por item (para o gráfico e as tabelas)
-    media_itens_por_data = {}
-    if not analista_selecionado and data_inicio and data_fim:
-        for item, valores in pontuacoes_por_item.items():
-            media_itens_por_data[item] = sum(valores) / len(valores) if len(valores) > 0 else 0
-
-    media_itens_por_analista = {}
-    if analista_selecionado:
-        for item, valores in pontuacoes_por_item.items():
-            valores_filtrados = [
-                valor for m in monitorias if m.nome_analista == analista_selecionado
-                for item_key, valor in valores_pontuacao.items()
-                if item_key == item and item_key not in m.penalidades
-            ]
-            media_itens_por_analista[item] = sum(valores_filtrados) / len(valores_filtrados) if len(valores_filtrados) > 0 else 0
-
-    # Definindo dados para o gráfico (pode ser alterado conforme a estrutura de dados)
-    dados_grafico = []
-    for item in valores_pontuacao:
-        dados_grafico.append(sum(pontuacoes_por_item[item]) / len(pontuacoes_por_item[item]) if len(pontuacoes_por_item[item]) > 0 else 0)
-
-    # Renderizando o template
-    return render_template(
-        'relatorio.html',
-        analistas=analistas,
-        nota_media_por_analista=nota_media_por_analista,
-        pontuacoes_por_item=pontuacoes_por_item,
-        valores_pontuacao=valores_pontuacao,
-        quantidade_monitorias=quantidade_monitorias,
-        media_pontuacao_por_analista=media_pontuacao_por_analista,
-        media_itens_por_data=media_itens_por_data,
-        media_itens_por_analista=media_itens_por_analista,
-        dados_grafico=dados_grafico,
-        analista_selecionado=analista_selecionado
-    )
-
-
-
-
 @app.route('/relatorio_analista', methods=['GET', 'POST'])
 def relatorio_analista():
     analistas = Monitoria.query.with_entities(Monitoria.nome_analista).distinct()
@@ -453,6 +363,8 @@ def relatorio_analista():
     mensagem_erro = None
     media_consolidada = 0
     pontuacao_media_itens = {}
+
+    fuso_horario_local = pytz.timezone('America/Sao_Paulo')
 
     if request.method == 'POST':
         # Receber os filtros do formulário
@@ -480,6 +392,13 @@ def relatorio_analista():
 
         try:
             monitorias = query.all()
+
+            # Ajustar as datas para o fuso horário local
+            for monitoria in monitorias:
+                monitoria.data_monitoria = monitoria.data_monitoria.astimezone(fuso_horario_local)
+                if monitoria.data_assinatura:
+                    monitoria.data_assinatura = monitoria.data_assinatura.astimezone(fuso_horario_local)
+
         except Exception as e:
             mensagem_erro = f"Ocorreu um erro ao buscar monitorias: {str(e)}"
 
@@ -523,7 +442,6 @@ def relatorio_analista():
         pontuacao_media_itens=pontuacao_media_itens,
         mensagem_erro=mensagem_erro,
     )
-
 
 
 # Rota para registrar um novo usuário

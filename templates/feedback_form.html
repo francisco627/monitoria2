@@ -128,6 +128,7 @@
     <table>
         <thead>
             <tr>
+                <th>Monitor</th>  <!-- Nova coluna para o nome do administrador -->
                 <th>Nome do Analista</th>
                 <th>ID de Atendimento</th>
                 <th>Nota</th>
@@ -139,6 +140,7 @@
         <tbody>
             {% for monitoria in monitorias %}
             <tr>
+                <td>{{ admin_nome }}</td> <!-- Aqui você coloca o nome do administrador -->
                 <td>{{ monitoria.nome_analista }}</td>
                 <td>{{ monitoria.id_atendimento }}</td>
                 <td>{{ monitoria.nota }}</td>
@@ -153,5 +155,6 @@
             {% endfor %}
         </tbody>
     </table>
+    
 </body>
 </html>

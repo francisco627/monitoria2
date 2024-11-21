@@ -46,7 +46,6 @@
             background-color: #003d7a; /* Cor para o botão ativo */
         }
 
-       
         .table {
             width: 100%;
             border-collapse: collapse;
@@ -163,6 +162,7 @@
                     <th>Status</th>
                     <th>Data da Monitoria</th>
                     <th>Data e Hora da Assinatura</th>
+                    <th>Monitor</th> <!-- Nova coluna -->
                     <th>Ações</th>
                 </tr>
             </thead>
@@ -176,13 +176,12 @@
                     <td>{{ monitoria.status }}</td>
                     <td>{{ monitoria.data_monitoria.strftime('%d/%m/%Y %H:%M') }}</td>
                     <td>{{ monitoria.data_assinatura.strftime('%d/%m/%Y %H:%M') if monitoria.data_assinatura else 'Não assinada' }}</td> <!-- Exibindo a data da assinatura -->
+                    <td>{{ monitoria.nome_administrador }}</td> <!-- Nome do administrador -->
                     <td class="actions-cell">
                         <a href="{{ url_for('visualizar_monitoria', id=monitoria.id) }}" class="button">Ver</a>
-                        <!-- Condicional para exibir botão "Assinar Feedback" para analistas -->
                         {% if session['grupo'] == 'analista' and monitoria.status == 'pendente' %}
                             <a href="{{ url_for('aplicar_feedback', index=monitoria.id) }}" class="button">Assinar Feedback</a>
                         {% endif %}
-                        <!-- Condicional para exibir botão "Assinar Feedback" para administradores -->
                         {% if session['grupo'] == 'administrador' and monitoria.status == 'pendente' %}
                             <a href="{{ url_for('aplicar_feedback', index=monitoria.id) }}" class="button">Assinar Feedback</a>
                         {% endif %}
