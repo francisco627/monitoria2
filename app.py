@@ -155,6 +155,20 @@ def monitoria_form():
 
         penalidades_aplicadas = []
 
+        # Adicionar variáveis de pontuação diretamente para os itens de avaliação
+        item_pontuacao = {
+            'se_apresentou': 15,
+            'atendeu_prontidao': 25,
+            'ouviu_demanda': 20,
+            'demonstrou_empatia': 25,
+            'realizou_sondagem': 15,
+            'argumentou_cancelamento': 10,
+            'respeitou_cliente': 10,
+            'confirmacao_cadastral': 5,
+            'contornou_odc': 5,
+            'seguiu_procedimentos': 5
+        }
+
         # Cálculo de penalidades
         for question, penalty in penalties.items():
             if request.form.get(question) == 'Não':
@@ -163,7 +177,29 @@ def monitoria_form():
 
         total_points = max(total_points, 0)
 
-        # Verificações de penalidades adicionais
+        # Inicializando a nova monitoria com as variáveis gerais
+        nova_monitoria = Monitoria(
+            nome_analista=nome_analista,
+            matricula=matricula,
+            id_atendimento=id_atendimento,
+            nota=total_points,
+            status='pendente',
+            descritivo=descritivo,
+            link_incluso=link_incluso,  # Salve o valor do link_incluso no banco de dados
+            penalidades=', '.join(penalidades_aplicadas),
+            data_monitoria=datetime.now(),
+            usuario_id=session['usuario_id'],
+            nome_administrador=session.get('nome_administrador', 'Administrador')  # Supondo que 'nome_administrador' está na sessão
+        )
+
+        # Atribuindo as pontuações diretamente aos campos da monitoria
+        for item, pontos in item_pontuacao.items():
+            if request.form.get(item) == 'Sim':  # Se marcado 'Sim', atribui a pontuação
+                setattr(nova_monitoria, item, pontos)
+            else:
+                setattr(nova_monitoria, item, 0)  # Se não for marcado 'Sim', atribui 0
+
+        # Para os itens adicionais, podemos usar uma lógica semelhante para marcar a penalidade diretamente
         additional_penalties = [
             'argumentou_cancelamento',
             'respeitou_cliente',
@@ -176,30 +212,14 @@ def monitoria_form():
                 total_points = 0
                 penalidades_aplicadas.append(penalty)
 
-        # Obter o nome do administrador logado
-        administrador = Usuario.query.get(session['usuario_id'])  # Pegue o usuário logado
-        nome_administrador = administrador.nome  # Supondo que o modelo Usuario tenha o campo nome
-
-        nova_monitoria = Monitoria(
-            nome_analista=nome_analista,
-            matricula=matricula,
-            id_atendimento=id_atendimento,
-            nota=total_points,
-            status='pendente',
-            descritivo=descritivo,
-            link_incluso=link_incluso,  # Salve o valor do link_incluso no banco de dados
-            penalidades=', '.join(penalidades_aplicadas),
-            data_monitoria=datetime.now(),
-            usuario_id=session['usuario_id'],
-            nome_administrador=nome_administrador  # Salve o nome do administrador
-        )
-
         db.session.add(nova_monitoria)
         db.session.commit()
         flash('Monitoria criada com sucesso!', 'success')
         return redirect(url_for('monitoria_sucesso'))
     
     return render_template('monitoria_form.html')
+
+
 
 
 
@@ -406,7 +426,7 @@ def relatorio_analista():
         total_notas = sum(monitoria.nota for monitoria in monitorias)
         total_monitorias = len(monitorias)
 
-        # Inicializar os itens com valor 0
+        # Inicializar os itens com valores definidos
         pontuacao_itens_totais = { 
             'se_apresentou': 0,
             'atendeu_prontidao': 0,
@@ -420,19 +440,45 @@ def relatorio_analista():
             'seguiu_procedimentos': 0,
         }
 
+        # Pontuação atribuída para "sim" nos itens
+        pontuacao_por_item = {
+            'se_apresentou': 15,
+            'atendeu_prontidao': 25,
+            'ouviu_demanda': 20,
+            'demonstrou_empatia': 25,
+            'realizou_sondagem': 15,
+            'argumentou_cancelamento': 10,  # Adapte conforme necessário
+            'respeitou_cliente': 10,         # Adapte conforme necessário
+            'confirmacao_cadastral': 5,     # Adapte conforme necessário
+            'contornou_odc': 5,             # Adapte conforme necessário
+            'seguiu_procedimentos': 5       # Adapte conforme necessário
+        }
+
         # Somar valores de cada item
         for monitoria in monitorias:
             for item in pontuacao_itens_totais:
-                pontuacao_itens_totais[item] += getattr(monitoria, item, 0) or 0
+                valor_item = getattr(monitoria, item, None)
+                
+                # Debug: Verificar o valor que está sendo recuperado
+                print(f"Item: {item}, Valor recuperado: {valor_item}")
+
+                if valor_item == 'sim':  # Verifica se o valor é "sim"
+                    pontuacao_itens_totais[item] += pontuacao_por_item[item]
+                else:
+                    pontuacao_itens_totais[item] += 0  # Caso contrário, não adiciona nada
 
         # Calcular média consolidada
-        media_consolidada = total_notas / total_monitorias
+        media_consolidada = total_notas / total_monitorias if total_monitorias > 0 else 0
 
         # Calcular média por item
         pontuacao_media_itens = {
             item: (valor / total_monitorias) if total_monitorias > 0 else 0
             for item, valor in pontuacao_itens_totais.items()
         }
+
+        # Debug: Verificar o cálculo das médias
+        print(f"Pontuação total dos itens: {pontuacao_itens_totais}")
+        print(f"Média por item: {pontuacao_media_itens}")
 
     return render_template(
         'relatorio_analista.html',
@@ -442,6 +488,7 @@ def relatorio_analista():
         pontuacao_media_itens=pontuacao_media_itens,
         mensagem_erro=mensagem_erro,
     )
+
 
 
 # Rota para registrar um novo usuário
