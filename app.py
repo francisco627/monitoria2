@@ -446,27 +446,21 @@ def relatorio():
 
 
 
-#Relatorio Analistas
 @app.route('/relatorio_analista', methods=['GET', 'POST'])
 def relatorio_analista():
-    # Buscar todos os analistas distintos para o filtro
     analistas = Monitoria.query.with_entities(Monitoria.nome_analista).distinct()
-
     monitorias = []
-    mensagem_erro = None  # Para exibir mensagens de erro no template
+    mensagem_erro = None
     media_consolidada = 0
     pontuacao_media_itens = {}
 
     if request.method == 'POST':
         # Receber os filtros do formulário
-        analista_nome = request.form.get('analista')  # Filtro pelo nome do analista
-        data_inicio = request.form.get('data_inicio')  # Filtro por data inicial
-        data_fim = request.form.get('data_fim')  # Filtro por data final
+        analista_nome = request.form.get('analista')
+        data_inicio = request.form.get('data_inicio')
+        data_fim = request.form.get('data_fim')
 
-        # Criar a consulta base
         query = Monitoria.query
-
-        # Aplicar os filtros dinamicamente
         if analista_nome:
             query = query.filter(Monitoria.nome_analista == analista_nome)
 
@@ -484,17 +478,17 @@ def relatorio_analista():
             except ValueError:
                 mensagem_erro = "Data de fim inválida."
 
-        # Buscar monitorias com filtros aplicados
         try:
             monitorias = query.all()
         except Exception as e:
             mensagem_erro = f"Ocorreu um erro ao buscar monitorias: {str(e)}"
 
-    # Se houver monitorias, calcular as médias
     if monitorias:
-        total_notas = 0
+        total_notas = sum(monitoria.nota for monitoria in monitorias)
         total_monitorias = len(monitorias)
-        pontuacao_itens_totais = {
+
+        # Inicializar os itens com valor 0
+        pontuacao_itens_totais = { 
             'se_apresentou': 0,
             'atendeu_prontidao': 0,
             'ouviu_demanda': 0,
@@ -507,24 +501,20 @@ def relatorio_analista():
             'seguiu_procedimentos': 0,
         }
 
+        # Somar valores de cada item
         for monitoria in monitorias:
-            # Soma das notas
-            total_notas += monitoria.nota
-
-            # Soma das pontuações por item
-            for item, valor in pontuacao_itens_totais.items():
+            for item in pontuacao_itens_totais:
                 pontuacao_itens_totais[item] += getattr(monitoria, item, 0) or 0
 
-        # Cálculo da média consolidada
+        # Calcular média consolidada
         media_consolidada = total_notas / total_monitorias
 
-        # Cálculo da pontuação média por item
+        # Calcular média por item
         pontuacao_media_itens = {
-            item: valor / total_monitorias
+            item: (valor / total_monitorias) if total_monitorias > 0 else 0
             for item, valor in pontuacao_itens_totais.items()
         }
 
-    # Retornar os dados para o template
     return render_template(
         'relatorio_analista.html',
         analistas=analistas,
