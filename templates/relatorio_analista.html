@@ -5,59 +5,103 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Relatório de Monitorias</title>
     <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        header {
+            background-color: #f2f2f2; /* Fundo cinza claro */
+            color: #333;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+        }
+        header img {
+            height: 60px; /* Ajusta o tamanho do logo */
+            margin-right: 15px;
+        }
+        header h1 {
+            font-size: 1.8rem;
+            margin: 0;
+        }
+        .button-container {
+            margin: 20px 0;
+            text-align: center;
+        }
+        .button-container a, .button-container button {
+            padding: 10px 15px;
+            margin: 5px;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .button-container a {
+            background-color: #0044cc;
+            color: white;
+        }
+        .button-container a:hover {
+            background-color: #003399;
+        }
+        .button-container button {
+            background-color: #28a745;
+            color: white;
+        }
+        .button-container button:hover {
+            background-color: #218838;
+        }
+        form {
+            margin: 20px 0;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        form label, form input, form select, form button {
+            margin: 5px;
+            padding: 10px;
+            font-size: 1rem;
+        }
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            margin: 20px 0;
+            background-color: white;
         }
-        table, th, td {
-            border: 1px solid black;
-        }
-        th, td {
+        table th, table td {
+            border: 1px solid #ddd;
             padding: 10px;
             text-align: center;
         }
-        th {
-            background-color: #f2f2f2;
-        }
-        form {
-            margin-bottom: 20px;
-        }
-        label, input, select, button {
-            margin-right: 10px;
-        }
-        .button-container {
-            margin-top: 20px;
-        }
-        .button-container a {
-            padding: 10px 15px;
-            margin-right: 10px;
-            background-color: #f2f2f2;
-            border: 1px solid #ccc;
-            text-decoration: none;
-            color: black;
-            cursor: pointer;
-        }
-        .button-container button {
-            padding: 10px 15px;
-            margin-right: 10px;
-            border: none;
-            cursor: pointer;
-            background-color: #4CAF50;
+        table th {
+            background-color: #0044cc;
             color: white;
         }
-        .button-container a:hover, .button-container button:hover {
+        table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        table tr:hover {
             background-color: #ddd;
+        }
+        .error-message {
+            color: red;
+            text-align: center;
+            margin: 10px 0;
         }
     </style>
 </head>
 <body>
-    <h1>Relatório de Monitorias</h1>
+    <header>
+        <img src="{{ url_for('static', filename='static/img/logo.png') }}" alt="Logo Fivenet">
+    
+    </header>
 
     <!-- Botões de Navegação -->
     <div class="button-container">
-        <!-- Botão de Voltar ao Dashboard -->
-        <a href="{{ url_for('dashboard') }}" class="back-button">Voltar ao Dashboard</a>
+        <a href="{{ url_for('dashboard') }}">Voltar ao Dashboard</a>
     </div>
 
     <!-- Formulário de Filtros -->
@@ -81,12 +125,12 @@
 
     <!-- Mensagem de Erro -->
     {% if mensagem_erro %}
-        <div style="color: red;">
+        <div class="error-message">
             {{ mensagem_erro }}
         </div>
     {% endif %}
 
-    <!-- Bloco de Resultados Consolidados -->
+    <!-- Resultados Consolidados -->
     {% if monitorias %}
         <h2>Resultados Consolidados</h2>
         <p><strong>Média Consolidada da Nota:</strong> {{ media_consolidada | round(2) }}</p>
@@ -97,6 +141,7 @@
                 <tr>
                     <th>Item</th>
                     <th>Média de Pontuação</th>
+                    <th>Valor Esperado</th>
                 </tr>
             </thead>
             <tbody>
@@ -104,6 +149,7 @@
                     <tr>
                         <td>{{ item }}</td>
                         <td>{{ media | round(2) }}</td>
+                        <td>{{ pontuacao_por_item[item] }}</td>
                     </tr>
                 {% endfor %}
             </tbody>
@@ -121,9 +167,10 @@
                     <th>Analista</th>
                     <th>Data da Monitoria</th>
                     <th>Nota</th>
-                    <th>Feito por</th>  <!-- Nova coluna para o nome do responsável -->
+                    <th>Feito por</th>
                     {% for item in itens %}
                         <th>{{ item }}</th>
+                        <th>Valor Esperado</th>
                     {% endfor %}
                 </tr>
             </thead>
@@ -133,12 +180,11 @@
                         <td>{{ monitoria.nome_analista }}</td>
                         <td>{{ monitoria.data_monitoria.strftime('%d/%m/%Y') }}</td>
                         <td>{{ monitoria.nota }}</td>
-                        <td>{{ monitoria.responsavel_nome }}</td>  <!-- Exibe o nome do responsável -->
+                        <td>{{ monitoria.responsavel_nome }}</td>
                         {% for item in itens %}
                             <td>{{ monitoria[item] or 'N/A' }}</td>
+                            <td>{{ pontuacao_por_item[item] }}</td>
                         {% endfor %}
-
-                        </td>
                     </tr>
                 {% endfor %}
             </tbody>

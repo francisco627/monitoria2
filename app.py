@@ -375,7 +375,7 @@ def editar_usuario(id):
 
     return render_template('editar_usuario.html', usuario=usuario)
 
-#Rota Relatorio
+# Rota Relatório
 @app.route('/relatorio_analista', methods=['GET', 'POST'])
 def relatorio_analista():
     analistas = Monitoria.query.with_entities(Monitoria.nome_analista).distinct()
@@ -383,6 +383,8 @@ def relatorio_analista():
     mensagem_erro = None
     media_consolidada = 0
     pontuacao_media_itens = {}
+    pontuacao_ideal = {}
+    pontuacao_por_item = {}  # Inicialização padrão para evitar erros
 
     fuso_horario_local = pytz.timezone('America/Sao_Paulo')
 
@@ -426,7 +428,6 @@ def relatorio_analista():
         total_notas = sum(monitoria.nota for monitoria in monitorias)
         total_monitorias = len(monitorias)
 
-        # Inicializar os itens com valores definidos
         pontuacao_itens_totais = { 
             'se_apresentou': 0,
             'atendeu_prontidao': 0,
@@ -440,55 +441,48 @@ def relatorio_analista():
             'seguiu_procedimentos': 0,
         }
 
-        # Pontuação atribuída para "sim" nos itens
         pontuacao_por_item = {
             'se_apresentou': 15,
             'atendeu_prontidao': 25,
             'ouviu_demanda': 20,
             'demonstrou_empatia': 25,
             'realizou_sondagem': 15,
-            'argumentou_cancelamento': 10,  # Adapte conforme necessário
-            'respeitou_cliente': 10,         # Adapte conforme necessário
-            'confirmacao_cadastral': 5,     # Adapte conforme necessário
-            'contornou_odc': 5,             # Adapte conforme necessário
-            'seguiu_procedimentos': 5       # Adapte conforme necessário
+            'argumentou_cancelamento': 10,
+            'respeitou_cliente': 10,
+            'confirmacao_cadastral': 5,
+            'contornou_odc': 5,
+            'seguiu_procedimentos': 5
         }
 
-        # Somar valores de cada item
         for monitoria in monitorias:
             for item in pontuacao_itens_totais:
                 valor_item = getattr(monitoria, item, None)
-                
-                # Debug: Verificar o valor que está sendo recuperado
-                print(f"Item: {item}, Valor recuperado: {valor_item}")
-
-                if valor_item == 'sim':  # Verifica se o valor é "sim"
+                if valor_item:
                     pontuacao_itens_totais[item] += pontuacao_por_item[item]
-                else:
-                    pontuacao_itens_totais[item] += 0  # Caso contrário, não adiciona nada
 
-        # Calcular média consolidada
         media_consolidada = total_notas / total_monitorias if total_monitorias > 0 else 0
 
-        # Calcular média por item
         pontuacao_media_itens = {
             item: (valor / total_monitorias) if total_monitorias > 0 else 0
             for item, valor in pontuacao_itens_totais.items()
         }
 
-        # Debug: Verificar o cálculo das médias
-        print(f"Pontuação total dos itens: {pontuacao_itens_totais}")
-        print(f"Média por item: {pontuacao_media_itens}")
+        pontuacao_ideal = {
+            item: pontuacao_por_item[item] * total_monitorias
+            for item in pontuacao_por_item
+        }
 
     return render_template(
-        'relatorio_analista.html',
-        analistas=analistas,
-        monitorias=monitorias,
-        media_consolidada=media_consolidada,
-        pontuacao_media_itens=pontuacao_media_itens,
-        mensagem_erro=mensagem_erro,
-    )
-
+    'relatorio_analista.html',
+    analistas=analistas,
+    monitorias=monitorias,
+    media_consolidada=media_consolidada,
+    pontuacao_media_itens=pontuacao_media_itens,
+    pontuacao_ideal=pontuacao_ideal,
+    pontuacao_por_item=pontuacao_por_item,  # Adicionado para o template
+    mensagem_erro=mensagem_erro,
+    itens=pontuacao_por_item.keys()  # Passando as chaves como lista de itens
+)
 
 
 # Rota para registrar um novo usuário
