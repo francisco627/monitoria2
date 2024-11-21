@@ -121,10 +121,10 @@
                     <th>Analista</th>
                     <th>Data da Monitoria</th>
                     <th>Nota</th>
+                    <th>Feito por</th>  <!-- Nova coluna para o nome do responsável -->
                     {% for item in itens %}
                         <th>{{ item }}</th>
                     {% endfor %}
-                    <th>Ações</th>
                 </tr>
             </thead>
             <tbody>
@@ -133,13 +133,11 @@
                         <td>{{ monitoria.nome_analista }}</td>
                         <td>{{ monitoria.data_monitoria.strftime('%d/%m/%Y') }}</td>
                         <td>{{ monitoria.nota }}</td>
+                        <td>{{ monitoria.responsavel_nome }}</td>  <!-- Exibe o nome do responsável -->
                         {% for item in itens %}
                             <td>{{ monitoria[item] or 'N/A' }}</td>
                         {% endfor %}
-                        <td>
-                           
-                                Editar
-                            </button>
+
                         </td>
                     </tr>
                 {% endfor %}

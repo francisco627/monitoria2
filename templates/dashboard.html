@@ -89,6 +89,26 @@
     height: auto;
     margin-bottom: 20px; /* Espaçamento abaixo do logo */
 }
+@media (max-width: 768px) {
+    .table th, .table td {
+        font-size: 12px; /* Tamanho de fonte reduzido em telas menores */
+        padding: 5px; /* Menos espaçamento em telas pequenas */
+    }
+
+    .button {
+        font-size: 0.7em; /* Reduzindo o tamanho da fonte para dispositivos móveis */
+        padding: 5px 8px;
+    }
+
+    .logo {
+        max-width: 60px; /* Ajustando o tamanho do logo para telas menores */
+    }
+}
+
+.table {
+    overflow-x: auto; /* Habilitando rolagem horizontal em tabelas grandes */
+}
+
 
     </style>
     <script>
@@ -146,7 +166,6 @@
             {% if session['grupo'] == 'administrador' %}
                 <a href="{{ url_for('monitoria_form') }}" class="button">Nova Monitoria</a>
                 <a href="{{ url_for('registrar_usuario') }}" class="button">Criar Novo Usuário</a>
-                <a href="{{ url_for('relatorio') }}" class="button">Ver Relatório</a>
                 <a href="{{ url_for('relatorio_analista') }}" class="button">Relatório por Analista</a>
                 <input type="text" id="termo" placeholder="Pesquisar..." style="padding: 6px; width: 200px; height: 30px; border: 1px solid #ccc; border-radius: 5px;" oninput="pesquisarMonitorias()">
             {% endif %}
