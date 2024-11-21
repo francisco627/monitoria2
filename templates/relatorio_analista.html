@@ -141,7 +141,7 @@
                 <tr>
                     <th>Item</th>
                     <th>Média de Pontuação</th>
-                    <th>Valor Esperado</th>
+                    <th>Meta</th>
                 </tr>
             </thead>
             <tbody>
@@ -170,7 +170,7 @@
                     <th>Feito por</th>
                     {% for item in itens %}
                         <th>{{ item }}</th>
-                        <th>Valor Esperado</th>
+                        <th>Meta</th>
                     {% endfor %}
                 </tr>
             </thead>
@@ -180,7 +180,7 @@
                         <td>{{ monitoria.nome_analista }}</td>
                         <td>{{ monitoria.data_monitoria.strftime('%d/%m/%Y') }}</td>
                         <td>{{ monitoria.nota }}</td>
-                        <td>{{ monitoria.responsavel_nome }}</td>
+                        <td>{{ administrador_nome }}</td>
                         {% for item in itens %}
                             <td>{{ monitoria[item] or 'N/A' }}</td>
                             <td>{{ pontuacao_por_item[item] }}</td>
