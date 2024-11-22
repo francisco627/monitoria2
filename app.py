@@ -183,6 +183,7 @@ def monitoria_form():
         total_points = max(total_points, 0)
 
         # Inicializando a nova monitoria com as variáveis gerais
+        nome_administrador = session.get('nome_administrador', 'Administrador')  # Obtendo nome do administrador da sessão
         nova_monitoria = Monitoria(
             nome_analista=nome_analista,
             matricula=matricula,
