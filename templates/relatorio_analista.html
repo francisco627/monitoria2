@@ -180,9 +180,9 @@
                         <td>{{ monitoria.nome_analista }}</td>
                         <td>{{ monitoria.data_monitoria.strftime('%d/%m/%Y') }}</td>
                         <td>{{ monitoria.nota }}</td>
-                        <td>{{ administrador_nome }}</td>
+                        <td>{{ monitoria.nome_administrador }}</td>  <!-- Aqui está o campo nome_administrador -->
                         {% for item in itens %}
-                            <td>{{ monitoria[item] or 'N/A' }}</td>
+                        <td>{{ monitoria[item] if monitoria[item] is not none else 0 }}</td> <!-- Substituindo None por 0 -->
                             <td>{{ pontuacao_por_item[item] }}</td>
                         {% endfor %}
                     </tr>

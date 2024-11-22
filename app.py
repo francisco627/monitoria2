@@ -280,8 +280,6 @@ def aplicar_feedback(index):
     return render_template('aplicar_feedback.html', monitoria=monitoria, arquivo_pdf=monitoria.arquivo_pdf, gravacao=monitoria.gravacao)
 
 
-
-
 # Rota para visualizar usuários
 @app.route('/usuarios')
 def listar_usuarios():
@@ -303,7 +301,13 @@ def listar_monitorias():
 @app.route('/monitoria/<int:id>')
 def visualizar_monitoria(id):
     monitoria = Monitoria.query.get_or_404(id)
-    return render_template('visualizar_monitoria.html', monitoria=monitoria)
+    
+    # Se o nome do administrador já estiver diretamente na tabela Monitoria
+    nome_administrador = monitoria.nome_administrador  # Ajuste conforme necessário
+    
+    return render_template('visualizar_monitoria.html', monitoria=monitoria, nome_administrador=nome_administrador)
+
+
 
 # Rota para pesquisar monitorias
 @app.route('/pesquisar_monitoria', methods=['POST'])
@@ -390,12 +394,11 @@ def relatorio_analista():
     media_consolidada = 0
     pontuacao_media_itens = {}
     pontuacao_ideal = {}
-    pontuacao_por_item = {}  # Inicialização padrão para evitar erros
+    pontuacao_por_item = {}
 
     fuso_horario_local = pytz.timezone('America/Sao_Paulo')
 
     if request.method == 'POST':
-        # Receber os filtros do formulário
         analista_nome = request.form.get('analista')
         data_inicio = request.form.get('data_inicio')
         data_fim = request.form.get('data_fim')
@@ -479,16 +482,16 @@ def relatorio_analista():
         }
 
     return render_template(
-    'relatorio_analista.html',
-    analistas=analistas,
-    monitorias=monitorias,
-    media_consolidada=media_consolidada,
-    pontuacao_media_itens=pontuacao_media_itens,
-    pontuacao_ideal=pontuacao_ideal,
-    pontuacao_por_item=pontuacao_por_item,  # Adicionado para o template
-    mensagem_erro=mensagem_erro,
-    itens=pontuacao_por_item.keys()  # Passando as chaves como lista de itens
-)
+        'relatorio_analista.html',
+        analistas=analistas,
+        monitorias=monitorias,
+        media_consolidada=media_consolidada,
+        pontuacao_media_itens=pontuacao_media_itens,
+        pontuacao_ideal=pontuacao_ideal,
+        pontuacao_por_item=pontuacao_por_item,
+        mensagem_erro=mensagem_erro,
+        itens=pontuacao_por_item.keys()  # Passando as chaves como lista de itens
+    )
 
 
 # Rota para registrar um novo usuário
