@@ -41,6 +41,7 @@ class Monitoria(db.Model):
     link_incluso = db.Column(db.String(255), nullable=True)
     nome_analista = db.Column(db.String(100), nullable=False)
     nome_administrador = db.Column(db.String(100))  # Novo campo para o nome do administrador
+    nome_monitor = db.Column(db.String(100), nullable=False)  # Novo campo para o nome do monitor
     matricula = db.Column(db.String(100), nullable=False)
     id_atendimento = db.Column(db.String(100), nullable=False)
     nota = db.Column(db.Integer, nullable=False)
@@ -138,6 +139,9 @@ def logout():
 # Rota para o formulário de monitoria
 @app.route('/monitoria', methods=['GET', 'POST'])
 def monitoria_form():
+    nome_administrador = session.get('nome_administrador', 'Administrador')  # Garantir valor padrão
+    nome_monitor = request.form.get('nome_monitor', 'Nome Padrão')  # Valor padrão, caso o campo não seja preenchido
+
     if request.method == 'POST':
         # Obter os links fornecidos pelo administrador
         arquivo_pdf_link = request.form.get('arquivo_pdf')
@@ -183,7 +187,6 @@ def monitoria_form():
         total_points = max(total_points, 0)
 
         # Inicializando a nova monitoria com as variáveis gerais
-        nome_administrador = session.get('nome_administrador', 'Administrador')  # Obtendo nome do administrador da sessão
         nova_monitoria = Monitoria(
             nome_analista=nome_analista,
             matricula=matricula,
@@ -195,8 +198,9 @@ def monitoria_form():
             penalidades=', '.join(penalidades_aplicadas),
             data_monitoria=datetime.now(),
             usuario_id=session['usuario_id'],
-            nome_administrador=session.get('nome_administrador', 'Administrador')  # Supondo que 'nome_administrador' está na sessão
-        )
+            nome_administrador=nome_administrador,  # Use o nome do administrador da variável
+            nome_monitor=nome_monitor  # Definindo o valor de nome_monitor com valor padrão, se necessário
+        ) 
 
         # Atribuindo as pontuações diretamente aos campos da monitoria
         for item, pontos in item_pontuacao.items():
@@ -223,7 +227,7 @@ def monitoria_form():
         flash('Monitoria criada com sucesso!', 'success')
         return redirect(url_for('monitoria_sucesso'))
     
-    return render_template('monitoria_form.html')
+    return render_template('monitoria_form.html', nome_monitor=request.form.get('nome_monitor', 'Valor Padrão'))
 
 
 

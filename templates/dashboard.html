@@ -199,7 +199,7 @@
                     <td>{{ monitoria.status }}</td>
                     <td>{{ monitoria.data_monitoria.strftime('%d/%m/%Y') }}</td>
                     <td>{{ monitoria.data_assinatura.strftime('%d/%m/%Y') if monitoria.data_assinatura else 'Não assinada' }}</td> <!-- Exibindo a data da assinatura -->
-                    <td>{{ monitoria.nome_administrador }}</td> <!-- Nome do administrador -->
+                    <td>{{ monitoria.nome_monitor }}</td> <!-- Nome do monitor -->
                     <td class="actions-cell">
                         <a href="{{ url_for('visualizar_monitoria', id=monitoria.id) }}" class="button">Ver</a>
                         {% if session['grupo'] == 'analista' and monitoria.status == 'pendente' %}
