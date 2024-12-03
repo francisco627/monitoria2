@@ -9,16 +9,18 @@ from werkzeug.utils import secure_filename
 from waitress import serve  # Importação do waitress
 import os
 
-
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://monitoria_db_user:qvof4jF81loI45WsH3DQpccbx1jb7GX8@dpg-cslrrfa3esus73ca72jg-a.oregon-postgres.render.com/monitoria_db'
+# Configuração do URI do banco de dados
+app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:Mika%40102030@172.16.49.68:5432/postgres"
+
+# Desabilitar o rastreamento de modificações
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+# Inicialização do SQLAlchemy e Migrate
 db = SQLAlchemy(app)
-migrate = Migrate(app, db)  # Inicialize o Flask-Migrate com a aplicação e o banco de dados
-
+migrate = Migrate(app, db)
 
 # Modelo de usuário para o banco de dados
 class Usuario(db.Model):
