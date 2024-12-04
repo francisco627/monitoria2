@@ -139,6 +139,7 @@ def logout():
 
 
 # Rota para o formulário de monitoria
+
 @app.route('/monitoria', methods=['GET', 'POST'])
 def monitoria_form():
     nome_administrador = session.get('nome_administrador', 'Administrador')  # Garantir valor padrão
@@ -186,6 +187,19 @@ def monitoria_form():
                 total_points -= penalty
                 penalidades_aplicadas.append(question)
 
+        # Verificando os campos de penalidades adicionais
+        additional_penalties = [
+            'argumentou_cancelamento',
+            'respeitou_cliente',
+            'confirmacao_cadastral',
+            'contornou_odc',
+            'seguiu_procedimentos'
+        ]
+        for penalty in additional_penalties:
+            if request.form.get(penalty) == 'Não':
+                total_points = 0  # Se qualquer um desses for 'Não', a nota é zerada
+                penalidades_aplicadas.append(penalty)
+
         total_points = max(total_points, 0)
 
         # Inicializando a nova monitoria com as variáveis gerais
@@ -210,19 +224,6 @@ def monitoria_form():
                 setattr(nova_monitoria, item, pontos)
             else:
                 setattr(nova_monitoria, item, 0)  # Se não for marcado 'Sim', atribui 0
-
-        # Para os itens adicionais, podemos usar uma lógica semelhante para marcar a penalidade diretamente
-        additional_penalties = [
-            'argumentou_cancelamento',
-            'respeitou_cliente',
-            'confirmacao_cadastral',
-            'contornou_odc',
-            'seguiu_procedimentos'
-        ]
-        for penalty in additional_penalties:
-            if request.form.get(penalty) == 'Não':
-                total_points = 0
-                penalidades_aplicadas.append(penalty)
 
         db.session.add(nova_monitoria)
         db.session.commit()
