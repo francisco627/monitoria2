@@ -186,6 +186,19 @@ def monitoria_form():
                 total_points -= penalty
                 penalidades_aplicadas.append(question)
 
+        # Verificando os campos de penalidades adicionais
+        additional_penalties = [
+            'argumentou_cancelamento',
+            'respeitou_cliente',
+            'confirmacao_cadastral',
+            'contornou_odc',
+            'seguiu_procedimentos'
+        ]
+        for penalty in additional_penalties:
+            if request.form.get(penalty) == 'Não':
+                total_points = 0  # Se qualquer um desses for 'Não', a nota é zerada
+                penalidades_aplicadas.append(penalty)
+
         total_points = max(total_points, 0)
 
         # Inicializando a nova monitoria com as variáveis gerais
@@ -211,29 +224,12 @@ def monitoria_form():
             else:
                 setattr(nova_monitoria, item, 0)  # Se não for marcado 'Sim', atribui 0
 
-        # Para os itens adicionais, podemos usar uma lógica semelhante para marcar a penalidade diretamente
-        additional_penalties = [
-            'argumentou_cancelamento',
-            'respeitou_cliente',
-            'confirmacao_cadastral',
-            'contornou_odc',
-            'seguiu_procedimentos'
-        ]
-        for penalty in additional_penalties:
-            if request.form.get(penalty) == 'Não':
-                total_points = 0
-                penalidades_aplicadas.append(penalty)
-
         db.session.add(nova_monitoria)
         db.session.commit()
         flash('Monitoria criada com sucesso!', 'success')
         return redirect(url_for('monitoria_sucesso'))
     
     return render_template('monitoria_form.html', nome_monitor=request.form.get('nome_monitor', 'Valor Padrão'))
-
-
-
-
 
 # Rota de sucesso após submeter monitoria
 @app.route('/monitoria_sucesso', methods=['GET'])
