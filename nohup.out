@@ -1,0 +1,10 @@
+[2024-12-03 18:12:33 +0000] [55410] [INFO] Starting gunicorn 20.0.4
+[2024-12-03 18:12:33 +0000] [55410] [INFO] Listening at: http://0.0.0.0:8000 (55410)
+[2024-12-03 18:12:33 +0000] [55410] [INFO] Using worker: sync
+[2024-12-03 18:12:33 +0000] [55412] [INFO] Booting worker with pid: 55412
+[2024-12-03 18:28:13 +0000] [55410] [CRITICAL] WORKER TIMEOUT (pid:55412)
+[2024-12-03 18:28:13 +0000] [55412] [INFO] Worker exiting (pid: 55412)
+[2024-12-03 18:28:13 +0000] [55862] [INFO] Booting worker with pid: 55862
+[2024-12-03 18:37:56 +0000] [55410] [INFO] Handling signal: term
+[2024-12-03 18:37:56 +0000] [55862] [INFO] Worker exiting (pid: 55862)
+[2024-12-03 18:37:57 +0000] [55410] [INFO] Shutting down: Master
