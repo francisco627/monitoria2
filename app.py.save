@@ -12,14 +12,10 @@ import os
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'
 
-<<<<<<< HEAD
-app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:Mika%40102030@172.16.49.68:5432/postgres"
-=======
 # Configuração do URI do banco de dados
 app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:Mika%40102030@172.16.49.68:5432/postgres"
 
 # Desabilitar o rastreamento de modificações
->>>>>>> e997bfbd0ba27581c475527853be1ecc3e923be0
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Inicialização do SQLAlchemy e Migrate
