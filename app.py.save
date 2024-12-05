@@ -144,7 +144,6 @@ def logout():
 
 # Rota para o formulário de monitoria
 
-
 @app.route('/monitoria', methods=['GET', 'POST'])
 def monitoria_form():
     nome_administrador = session.get('nome_administrador', 'Administrador')  # Garantir valor padrão
@@ -235,9 +234,7 @@ def monitoria_form():
         flash('Monitoria criada com sucesso!', 'success')
         return redirect(url_for('monitoria_sucesso'))
     
-    return render_template('monitoria_form.html', nome_monitor=request.form.get('nome_monitor', 'Valor Padrão'))
-
-
+    return render_template('monitoria_form.html', nome_monitor=request.form.get('nome_monitor', 'Valor Pad
 # Rota de sucesso após submeter monitoria
 @app.route('/monitoria_sucesso', methods=['GET'])
 def monitoria_sucesso():
