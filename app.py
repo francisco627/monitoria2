@@ -13,9 +13,7 @@ app = Flask(__name__)
 app.secret_key = 'supersecretkey'
 
 app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:Mika%40102030@172.16.49.68:5432/postgres"
-=======
-# Configuração do URI do banco de dados
-app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:Mika%40102030@172.16.49.68:5432/postgres"
+
 
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
