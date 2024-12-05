@@ -15,6 +15,7 @@ app.secret_key = 'supersecretkey'
 # Configuração do URI do banco de dados
 app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:Mika%40102030@172.16.49.68:5432/postgres"
 
+
 # Desabilitar o rastreamento de modificações
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -140,6 +141,7 @@ def logout():
 
 # Rota para o formulário de monitoria
 
+
 @app.route('/monitoria', methods=['GET', 'POST'])
 def monitoria_form():
     nome_administrador = session.get('nome_administrador', 'Administrador')  # Garantir valor padrão
@@ -199,6 +201,7 @@ def monitoria_form():
             if request.form.get(penalty) == 'Não':
                 total_points = 0  # Se qualquer um desses for 'Não', a nota é zerada
                 penalidades_aplicadas.append(penalty)
+                break
 
         total_points = max(total_points, 0)
 
@@ -231,9 +234,6 @@ def monitoria_form():
         return redirect(url_for('monitoria_sucesso'))
     
     return render_template('monitoria_form.html', nome_monitor=request.form.get('nome_monitor', 'Valor Padrão'))
-
-
-
 
 
 # Rota de sucesso após submeter monitoria
@@ -550,10 +550,5 @@ def download_file(filename):
     return send_from_directory(directory, filename, as_attachment=True, mimetype=mimetype)
 
 
-<<<<<<< HEAD
-if __name__ == '__main__':
-    serve(app, host='0.0.0.0', port=8000)
-=======
 if __name__ == "__main__":
     serve(app, host='0.0.0.0', port=8080)  # Usando waitress 
->>>>>>> f38fa80a4480179ca21e077c62331e9ab7750790
