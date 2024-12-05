@@ -203,6 +203,7 @@ def monitoria_form():
             if request.form.get(penalty) == 'Não':
                 total_points = 0  # Se qualquer um desses for 'Não', a nota é zerada
                 penalidades_aplicadas.append(penalty)
+                break
 
         total_points = max(total_points, 0)
 
