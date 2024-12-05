@@ -550,5 +550,10 @@ def download_file(filename):
     return send_from_directory(directory, filename, as_attachment=True, mimetype=mimetype)
 
 
+<<<<<<< HEAD
 if __name__ == '__main__':
     serve(app, host='0.0.0.0', port=8000)
+=======
+if __name__ == "__main__":
+    serve(app, host='0.0.0.0', port=8080)  # Usando waitress 
+>>>>>>> f38fa80a4480179ca21e077c62331e9ab7750790
